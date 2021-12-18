@@ -24,14 +24,11 @@ func PingWithTimeout(host string, port uint16, timeout time.Duration) (*Response
 	if err != nil {
 		return nil, fmt.Errorf("connection error: %w", err)
 	}
+	defer func() { _ = conn.Close() }()
 
 	res, err := sendServerListPing(conn, host, port)
 	if err != nil {
 		return nil, fmt.Errorf("ping error: %w", err)
-	}
-
-	if err = conn.Close(); err != nil {
-		return nil, fmt.Errorf("connection close error: %w", err)
 	}
 
 	return res, nil
@@ -56,6 +53,7 @@ func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*Le
 	if err != nil {
 		return nil, fmt.Errorf("connection error: %w", err)
 	}
+	defer func() { _ = conn.Close() }()
 
 	res, err := sendLegacyServerListPing(conn, host, port)
 	if err != nil {
