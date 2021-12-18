@@ -76,6 +76,14 @@ func writeUnsignedShort(w io.Writer, u unsignedShort) error {
 	return binary.Write(w, binary.BigEndian, uint16(u))
 }
 
+func readUnsignedShort(r io.Reader) (unsignedVarInt32, error) {
+	var u uint16
+	if err := binary.Read(r, binary.BigEndian, &u); err != nil {
+		return 0, err
+	}
+	return unsignedVarInt32(u), nil
+}
+
 type long int64
 
 func writeLong(w io.Writer, l long) error {

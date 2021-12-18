@@ -6,21 +6,17 @@ import (
 	"time"
 )
 
-// Ping sends a sequence of packets necessary for performing so-called Server List Ping (see https://wiki.vg/Server_List_Ping.)
-// This method does not set a read/write timeout; if a timeout is necessary, use PingWithTimeout.
 func Ping(host string, port uint16) (*Response, error) {
 	return PingWithTimeout(host, port, 0)
 }
 
-// PingWithTimeout sends a sequence of packets necessary for performing so-called Server List Ping (see https://wiki.vg/Server_List_Ping.)
-//goland:noinspection GoNameStartsWithPackageName
 func PingWithTimeout(host string, port uint16, timeout time.Duration) (*Response, error) {
 	var deadline time.Time
 	if timeout > 0 {
 		deadline = time.Now().Add(timeout)
 	}
 
-	conn, err := openConnection(host, port, deadline)
+	conn, err := newTcpConn(host, port, deadline)
 	if err != nil {
 		return nil, fmt.Errorf("connection error: %w", err)
 	}
@@ -32,49 +28,6 @@ func PingWithTimeout(host string, port uint16, timeout time.Duration) (*Response
 	}
 
 	return res, nil
-}
-
-// PingLegacy sends a legacy (<1.7) server list ping packet (see https://wiki.vg/Server_List_Ping.)
-// This method does not set a read/write timeout; if a timeout is necessary, use PingLegacyWithTimeout.
-//goland:noinspection GoNameStartsWithPackageName
-func PingLegacy(host string, port uint16) (*LegacyResponse, error) {
-	return PingLegacyWithTimeout(host, port, 0)
-}
-
-// PingLegacyWithTimeout sends a legacy (<1.7) server list ping packet (see https://wiki.vg/Server_List_Ping.)
-//goland:noinspection GoNameStartsWithPackageName
-func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*LegacyResponse, error) {
-	var deadline time.Time
-	if timeout > 0 {
-		deadline = time.Now().Add(timeout)
-	}
-
-	conn, err := openConnection(host, port, deadline)
-	if err != nil {
-		return nil, fmt.Errorf("connection error: %w", err)
-	}
-	defer func() { _ = conn.Close() }()
-
-	res, err := sendLegacyServerListPing(conn, host, port)
-	if err != nil {
-		return nil, fmt.Errorf("test: %w", err)
-	}
-
-	return res, nil
-}
-
-func openConnection(host string, port uint16, deadline time.Time) (net.Conn, error) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
-	if err != nil {
-		return nil, err
-	}
-	if err = conn.SetDeadline(deadline); err != nil {
-		return nil, err
-	}
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
 }
 
 func sendServerListPing(conn net.Conn, host string, port uint16) (*Response, error) {
@@ -96,12 +49,73 @@ func sendServerListPing(conn net.Conn, host string, port uint16) (*Response, err
 	return res, nil
 }
 
+func PingLegacy(host string, port uint16) (*LegacyResponse, error) {
+	return PingLegacyWithTimeout(host, port, 0)
+}
+
+func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*LegacyResponse, error) {
+	var deadline time.Time
+	if timeout > 0 {
+		deadline = time.Now().Add(timeout)
+	}
+
+	conn, err := newTcpConn(host, port, deadline)
+	if err != nil {
+		return nil, fmt.Errorf("connection error: %w", err)
+	}
+	defer func() { _ = conn.Close() }()
+
+	res, err := sendLegacyServerListPing(conn, host, port)
+	if err != nil {
+		return nil, fmt.Errorf("test: %w", err)
+	}
+
+	return res, nil
+}
+
 func sendLegacyServerListPing(conn net.Conn, host string, port uint16) (*LegacyResponse, error) {
 	if err := writeLegacyPing(conn, legacyPing{Host: host, Port: port}); err != nil {
 		return nil, fmt.Errorf("ping error: %w", err)
 	}
 
 	res, err := readLegacyPong(conn)
+	if err != nil {
+		return nil, fmt.Errorf("pong error: %w", err)
+	}
+
+	return res, nil
+}
+
+func PingAncient(host string, port uint16) (*AncientResponse, error) {
+	return PingAncientWithTimeout(host, port, 0)
+}
+
+func PingAncientWithTimeout(host string, port uint16, timeout time.Duration) (*AncientResponse, error) {
+	var deadline time.Time
+	if timeout > 0 {
+		deadline = time.Now().Add(timeout)
+	}
+
+	conn, err := newTcpConn(host, port, deadline)
+	if err != nil {
+		return nil, fmt.Errorf("connection error: %w", err)
+	}
+	defer func() { _ = conn.Close() }()
+
+	res, err := sendAncientServerListPing(conn)
+	if err != nil {
+		return nil, fmt.Errorf("test: %w", err)
+	}
+
+	return res, nil
+}
+
+func sendAncientServerListPing(conn net.Conn) (*AncientResponse, error) {
+	if err := writeAncientPing(conn); err != nil {
+		return nil, fmt.Errorf("ping error: %w", err)
+	}
+
+	res, err := readAncientPong(conn)
 	if err != nil {
 		return nil, fmt.Errorf("pong error: %w", err)
 	}

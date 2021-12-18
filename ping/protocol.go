@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
 	"golang.org/x/text/encoding/unicode"
 )
@@ -267,4 +269,62 @@ func readLegacyPong(r io.Reader) (*LegacyResponse, error) {
 	}
 
 	return rs, nil
+}
+
+// Ancient (Beta 1.8 to 1.3)
+
+const packetAncientPing byte = 0xfe
+const packetAncientPong byte = 0xff
+
+type AncientResponse struct {
+	MessageOfTheDay string
+	PlayerCount     uint32
+	MaxPlayers      uint32
+}
+
+func writeAncientPing(w io.Writer) error {
+	_, err := w.Write([]byte{packetAncientPing})
+	return err
+}
+
+func readAncientPong(r io.Reader) (*AncientResponse, error) {
+	p, err := (&byteReaderWrap{r}).ReadByte()
+	if err != nil {
+		return nil, err
+	}
+	if p != packetAncientPong {
+		return nil, fmt.Errorf("expected packet %#x but got %#x instead", packetAncientPong, p)
+	}
+
+	l, err := readUnsignedShort(r)
+	if err != nil {
+		return nil, err
+	}
+
+	buf := make([]byte, l*2)
+	if _, err = r.Read(buf); err != nil {
+		return nil, err
+	}
+
+	data, err := readLegacyPongString(buf)
+	if err != nil {
+		return nil, err
+	}
+
+	parts := strings.Split(data, "§")
+	a := &AncientResponse{}
+
+	a.MessageOfTheDay = parts[0]
+	m, err := strconv.ParseUint(parts[1], 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	a.MaxPlayers = uint32(m)
+	c, err := strconv.ParseUint(parts[2], 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	a.PlayerCount = uint32(c)
+
+	return a, nil
 }
