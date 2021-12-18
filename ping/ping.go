@@ -6,10 +6,13 @@ import (
 	"time"
 )
 
+// Ping performs a Server List Ping interaction with modern (1.7 and newer) Minecraft server running on the specified host and the specified port.
 func Ping(host string, port uint16) (*Response, error) {
 	return PingWithTimeout(host, port, 0)
 }
 
+// PingWithTimeout performs a Server List Ping interaction with modern (1.7 and newer) Minecraft server running on the specified host and the specified port with
+// read and write timeout.
 func PingWithTimeout(host string, port uint16, timeout time.Duration) (*Response, error) {
 	var deadline time.Time
 	if timeout > 0 {
@@ -49,10 +52,13 @@ func sendServerListPing(conn net.Conn, host string, port uint16) (*Response, err
 	return res, nil
 }
 
+// PingLegacy performs a Server List Ping interaction with legacy (1.4 to 1.6) Minecraft server running on the specified host and the specified port.
 func PingLegacy(host string, port uint16) (*LegacyResponse, error) {
 	return PingLegacyWithTimeout(host, port, 0)
 }
 
+// PingLegacyWithTimeout performs a Server List Ping interaction with legacy (1.4 to 1.6) Minecraft server running on the specified host and the specified port with
+// read and write timeout.
 func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*LegacyResponse, error) {
 	var deadline time.Time
 	if timeout > 0 {
@@ -86,10 +92,13 @@ func sendLegacyServerListPing(conn net.Conn, host string, port uint16) (*LegacyR
 	return res, nil
 }
 
+// PingAncient performs a Server List Ping interaction with old (Beta 1.8 to 1.3) Minecraft server running on the specified host and the specified port.
 func PingAncient(host string, port uint16) (*AncientResponse, error) {
 	return PingAncientWithTimeout(host, port, 0)
 }
 
+// PingAncient performs a Server List Ping interaction with old (Beta 1.8 to 1.3) Minecraft server running on the specified host and the specified port with
+// read and write timeout.
 func PingAncientWithTimeout(host string, port uint16, timeout time.Duration) (*AncientResponse, error) {
 	var deadline time.Time
 	if timeout > 0 {
