@@ -97,7 +97,7 @@ func PingAncient(host string, port uint16) (*AncientResponse, error) {
 	return PingAncientWithTimeout(host, port, 0)
 }
 
-// PingAncient performs a Server List Ping interaction with old (Beta 1.8 to 1.3) Minecraft server running on the specified host and the specified port with
+// PingAncientWithTimeout performs a Server List Ping interaction with old (Beta 1.8 to 1.3) Minecraft server running on the specified host and the specified port with
 // read and write timeout.
 func PingAncientWithTimeout(host string, port uint16, timeout time.Duration) (*AncientResponse, error) {
 	var deadline time.Time
