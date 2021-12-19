@@ -1,13 +1,11 @@
 <p align="center">
-    <h1>MineQuery</h1>
-    Minecraft Server List Ping library written in Go.
-
-    <img src="https://img.shields.io/github/v/release/altea-minecraft/minequery">
-    <img src="https://img.shields.io/github/go-mod/go-version/altea-minecraft/minequery">
-    <img src="https://img.shields.io/github/workflow/status/altea-minecraft/minequery/Go/master">
-    <img src="https://img.shields.io/codacy/grade/7a7901a7d1ee435f8cd047ed15369043">
-    <img src="https://img.shields.io/github/license/altea-minecraft/minequery">
-
+<h1>MineQuery</h1>
+Minecraft Server List Ping library written in Go.
+<img src="https://img.shields.io/github/v/release/altea-minecraft/minequery">
+<img src="https://img.shields.io/github/go-mod/go-version/altea-minecraft/minequery">
+<img src="https://img.shields.io/github/workflow/status/altea-minecraft/minequery/Go/master">
+<img src="https://img.shields.io/codacy/grade/7a7901a7d1ee435f8cd047ed15369043">
+<img src="https://img.shields.io/github/license/altea-minecraft/minequery">
 </p>
 
 [//]: # (![GitHub release &#40;latest by date&#41;]&#40;https://img.shields.io/github/v/release/altea-minecraft/minequery&#41;)
