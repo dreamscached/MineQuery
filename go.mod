@@ -1,4 +1,4 @@
-module github.com/altea-minecraft/minequery
+module github.com/alteamc/minequery
 
 go 1.17
 
