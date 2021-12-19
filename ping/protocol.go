@@ -103,7 +103,7 @@ func writePing(w io.Writer, p ping) error {
 
 const packetResponse unsignedVarInt32 = 0x0
 
-type Description struct {
+type description struct {
 	Text string `json:"text"`
 }
 
@@ -111,10 +111,10 @@ type descriptionObj struct {
 	Text string `json:"text"`
 }
 
-func (r *Description) UnmarshalJSON(data []byte) error {
+func (r *description) UnmarshalJSON(data []byte) error {
 	f := &descriptionObj{}
 	if err := json.Unmarshal(data, f); err != nil {
-		r.Text = string(data)
+		r.Text = string(data[1 : len(data)-1])
 		return nil
 	}
 
@@ -137,7 +137,7 @@ type Response struct {
 		} `json:"sample"`
 	}
 
-	Description Description `json:"description"`
+	Description description `json:"description"`
 
 	Favicon string `json:"favicon"`
 }
@@ -315,16 +315,16 @@ func readAncientPong(r io.Reader) (*AncientResponse, error) {
 	a := &AncientResponse{}
 
 	a.MessageOfTheDay = parts[0]
-	m, err := strconv.ParseUint(parts[1], 10, 32)
-	if err != nil {
-		return nil, err
-	}
-	a.MaxPlayers = uint32(m)
-	c, err := strconv.ParseUint(parts[2], 10, 32)
+	c, err := strconv.ParseUint(parts[1], 10, 32)
 	if err != nil {
 		return nil, err
 	}
 	a.PlayerCount = uint32(c)
+	m, err := strconv.ParseUint(parts[2], 10, 32)
+	if err != nil {
+		return nil, err
+	}
+	a.MaxPlayers = uint32(m)
 
 	return a, nil
 }
