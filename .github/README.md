@@ -1,22 +1,23 @@
 <p align="center">
 <h1>MineQuery</h1>
-Minecraft Server List Ping library written in Go.
+<h3>Minecraft Server List Ping library written in Go.</h3>
+<br>
+<a href="https://github.com/altea-minecraft/minequery/releases/latest">
 <img src="https://img.shields.io/github/v/release/altea-minecraft/minequery">
+</a>
+<a href="https://github.com/altea-minecraft/minequery/blob/master/go.mod">
 <img src="https://img.shields.io/github/go-mod/go-version/altea-minecraft/minequery">
+</a>
+<a href="https://github.com/altea-minecraft/minequery/actions/workflows/go.yml">
 <img src="https://img.shields.io/github/workflow/status/altea-minecraft/minequery/Go/master">
+</a>
+<a href="https://github.com/altea-minecraft/minequery">
 <img src="https://img.shields.io/codacy/grade/7a7901a7d1ee435f8cd047ed15369043">
+</a>
+<a href="https://github.com/altea-minecraft/minequery/blob/master/LICENSE">
 <img src="https://img.shields.io/github/license/altea-minecraft/minequery">
+</a>
 </p>
-
-[//]: # (![GitHub release &#40;latest by date&#41;]&#40;https://img.shields.io/github/v/release/altea-minecraft/minequery&#41;)
-
-[//]: # (![GitHub go.mod Go version]&#40;https://img.shields.io/github/go-mod/go-version/altea-minecraft/minequery&#41;)
-
-[//]: # (![GitHub Workflow Status &#40;branch&#41;]&#40;https://img.shields.io/github/workflow/status/altea-minecraft/minequery/Go/master&#41;)
-
-[//]: # (![Codacy grade]&#40;https://img.shields.io/codacy/grade/7a7901a7d1ee435f8cd047ed15369043&#41;)
-
-[//]: # (![GitHub]&#40;https://img.shields.io/github/license/altea-minecraft/minequery&#41;)
 
 ## Features
 
