@@ -1,6 +1,4 @@
 #!/bin/sh
-set -x
-
 if [ "$EULA" = "true" ] && [ ! -e "/server/eula.txt" ]; then
   printf "%s" "eula=true" >"/server/eula.txt"
 fi
