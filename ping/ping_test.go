@@ -18,8 +18,8 @@ func TestPing(t *testing.T) {
 		t.Errorf("Expected protocol version 4, got %d", res.Version.Protocol)
 	}
 
-	if res.Description.Text != "A Minecraft Server" {
-		t.Errorf("Expected description A Minecraft Server, got %s", res.Description.Text)
+	if res.Description.(map[string]interface{})["text"].(string) != "A Minecraft Server" {
+		t.Errorf("Expected description A Minecraft Server, got %s", res.Description.(map[string]interface{})["text"].(string))
 	}
 
 	if res.Players.Max != 20 {
