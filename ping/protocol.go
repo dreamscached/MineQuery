@@ -103,24 +103,7 @@ func writePing(w io.Writer, p ping) error {
 
 const packetResponse unsignedVarInt32 = 0x0
 
-type description struct {
-	Text string `json:"text"`
-}
-
-type descriptionObj struct {
-	Text string `json:"text"`
-}
-
-func (r *description) UnmarshalJSON(data []byte) error {
-	f := &descriptionObj{}
-	if err := json.Unmarshal(data, f); err != nil {
-		r.Text = string(data[1 : len(data)-1])
-		return nil
-	}
-
-	r.Text = f.Text
-	return nil
-}
+type Chat interface{}
 
 type Response struct {
 	Version struct {
@@ -137,7 +120,7 @@ type Response struct {
 		} `json:"sample"`
 	}
 
-	Description description `json:"description"`
+	Description Chat `json:"description"`
 
 	Favicon string `json:"favicon"`
 }
