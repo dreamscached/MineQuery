@@ -32,6 +32,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(res.Description.Text)
+	fmt.Println(res.Description)
 }
 ```
