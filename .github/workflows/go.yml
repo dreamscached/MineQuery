@@ -3,20 +3,21 @@ name: Go
 on:
   push:
     branches: [ master ]
+    paths: [ '*.go' ]
   pull_request:
     branches: [ master ]
+    paths: [ '*.go' ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
 
-    - name: Test
-      run: test/test_pings.sh
+      - name: Test
+        run: test/test_pings.sh
