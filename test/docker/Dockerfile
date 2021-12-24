@@ -1,9 +1,12 @@
-FROM alpine:latest
+FROM alpine:3.15.0
+
 ARG JAVA_PACKAGE=openjdk17-jre-headless
 ARG SERVER_URL
+
 RUN apk add $JAVA_PACKAGE
 RUN mkdir /server && wget -O /server/server.jar $SERVER_URL
-ADD docker_entrypoint.sh /
+
+COPY docker_entrypoint.sh /
 RUN adduser -D server && chown -R server:server /server
 
 USER server:server

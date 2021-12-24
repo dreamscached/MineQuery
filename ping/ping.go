@@ -19,7 +19,7 @@ func PingWithTimeout(host string, port uint16, timeout time.Duration) (*Response
 		deadline = time.Now().Add(timeout)
 	}
 
-	conn, err := newTcpConn(host, port, deadline)
+	conn, err := newTCPConn(host, port, deadline)
 	if err != nil {
 		return nil, fmt.Errorf("connection error: %w", err)
 	}
@@ -71,7 +71,7 @@ func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*Le
 		deadline = time.Now().Add(timeout)
 	}
 
-	conn, err := newTcpConn(host, port, deadline)
+	conn, err := newTCPConn(host, port, deadline)
 	if err != nil {
 		return nil, fmt.Errorf("connection error: %w", err)
 	}
@@ -111,7 +111,7 @@ func PingAncientWithTimeout(host string, port uint16, timeout time.Duration) (*A
 		deadline = time.Now().Add(timeout)
 	}
 
-	conn, err := newTcpConn(host, port, deadline)
+	conn, err := newTCPConn(host, port, deadline)
 	if err != nil {
 		return nil, fmt.Errorf("connection error: %w", err)
 	}
