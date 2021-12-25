@@ -263,6 +263,7 @@ func readLegacyPong(r io.Reader) (*LegacyResponse, error) {
 const packetAncientPing byte = 0xfe
 const packetAncientPong byte = 0xff
 
+// AncientResponse represents ping response from old servers (Beta 1.8 to 1.3) Minecraft servers.
 type AncientResponse struct {
 	MessageOfTheDay string
 	PlayerCount     uint32
