@@ -11,6 +11,6 @@ RUN adduser -D server && chown -R server:server /server
 
 USER server:server
 EXPOSE 25565
-ENV EULA=false JAVA_OPTS="-Xmx1G -Xms256M"
+ENV EULA=false JAVA_OPTS="-Xmx256M -Xms128M"
 STOPSIGNAL SIGINT
 ENTRYPOINT [ "/docker_entrypoint.sh" ]
