@@ -11,9 +11,9 @@
 
 ## Features
 
-  * Modern Minecraft support (1.7 and newer)
-  * Legacy protocol support (1.6 and older)
-  * Older versions support (Beta 1.8 to Release 1.3)
+*   Modern Minecraft support (1.7 and newer)
+*   Legacy protocol support (1.6 and older)
+*   Older versions support (Beta 1.8 to Release 1.3)
 
 ## Usage
 

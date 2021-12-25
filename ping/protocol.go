@@ -103,8 +103,11 @@ func writePing(w io.Writer, p ping) error {
 
 const packetResponse unsignedVarInt32 = 0x0
 
+// Chat represents arbitrary JSON-encoded chat components structure used in modern (1.7 and earlier)
+// Minecraft server descriptions.
 type Chat interface{}
 
+// Response represents ping response from modern (1.7 and earlier) Minecraft servers.
 type Response struct {
 	Version struct {
 		Name     string `json:"name"`
@@ -201,6 +204,7 @@ func writeLegacyPing(w io.Writer, l legacyPing) error {
 	return nil
 }
 
+// LegacyResponse represents ping response from legacy (1.4 to 1.6) Minecraft servers.
 type LegacyResponse struct {
 	ProtocolVersion uint32
 	Version         string
@@ -259,6 +263,7 @@ func readLegacyPong(r io.Reader) (*LegacyResponse, error) {
 const packetAncientPing byte = 0xfe
 const packetAncientPong byte = 0xff
 
+// AncientResponse represents ping response from old servers (Beta 1.8 to 1.3) Minecraft servers.
 type AncientResponse struct {
 	MessageOfTheDay string
 	PlayerCount     uint32
