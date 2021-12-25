@@ -103,6 +103,8 @@ func writePing(w io.Writer, p ping) error {
 
 const packetResponse unsignedVarInt32 = 0x0
 
+// Chat represents arbitrary JSON-encoded chat components structure used in modern (1.7 and earlier)
+// Minecraft server descriptions.
 type Chat interface{}
 
 type Response struct {
