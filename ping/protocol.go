@@ -204,6 +204,7 @@ func writeLegacyPing(w io.Writer, l legacyPing) error {
 	return nil
 }
 
+// LegacyResponse represents ping response from legacy (1.4 to 1.6) Minecraft servers.
 type LegacyResponse struct {
 	ProtocolVersion uint32
 	Version         string
