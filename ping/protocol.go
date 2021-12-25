@@ -107,6 +107,7 @@ const packetResponse unsignedVarInt32 = 0x0
 // Minecraft server descriptions.
 type Chat interface{}
 
+// Response represents ping response from modern (1.7 and earlier) Minecraft servers.
 type Response struct {
 	Version struct {
 		Name     string `json:"name"`
