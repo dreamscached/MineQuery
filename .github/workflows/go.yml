@@ -3,12 +3,14 @@ name: Go
 on:
   push:
     branches: [ master ]
-    paths: &paths
+    paths:
       - "*.go"
       - "test/*"
   pull_request:
     branches: [ master ]
-    paths: *paths
+    paths:
+      - "*.go"
+      - "test/*"
 
 jobs:
   build:
