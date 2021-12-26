@@ -31,6 +31,16 @@ func TestPing(t *testing.T) {
 	}
 }
 
+func BenchmarkPing(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_, err := Ping("127.0.0.1", 25565)
+		if err != nil {
+			b.Fatalf("Failed to ping server: %s.", err)
+		}
+	}
+}
+
 func TestPingLegacy(t *testing.T) {
 	res, err := PingLegacy("127.0.0.1", 25566)
 	if err != nil {
@@ -62,6 +72,16 @@ func TestPingLegacy(t *testing.T) {
 	}
 }
 
+func BenchmarkPingLegacy(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_, err := PingLegacy("127.0.0.1", 25566)
+		if err != nil {
+			b.Fatalf("Failed to ping server: %s.", err)
+		}
+	}
+}
+
 func TestPingAncient(t *testing.T) {
 	res, err := PingAncient("127.0.0.1", 25568)
 	if err != nil {
@@ -78,5 +98,15 @@ func TestPingAncient(t *testing.T) {
 
 	if res.PlayerCount != 0 {
 		t.Errorf("Expected online players of 0, got %d", res.PlayerCount)
+	}
+}
+
+func BenchmarkPingAncient(b *testing.B) {
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		_, err := PingAncient("127.0.0.1", 25568)
+		if err != nil {
+			b.Fatalf("Failed to ping server: %s.", err)
+		}
 	}
 }
