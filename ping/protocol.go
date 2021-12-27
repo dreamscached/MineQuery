@@ -45,14 +45,16 @@ func (p *packet) WriteString(s string) {
 
 func (p *packet) Push(w io.Writer) error {
 	buf := bytes.NewBuffer(nil)
-	_ = writeUnsignedVarInt(buf, unsignedVarInt32(p.id))
-	if err := writeUnsignedVarInt(w, unsignedVarInt32(buf.Len()+p.buf.Len())); err != nil {
-		return err
-	}
-	if _, err := buf.WriteTo(w); err != nil {
-		return err
-	} // Pushing packet ID
-	_, err := p.buf.WriteTo(w) // Pushing packet data
+
+	headerBuf := bytes.NewBuffer(nil)
+	_ = writeUnsignedVarInt(headerBuf, unsignedVarInt32(p.id))
+	_ = writeUnsignedVarInt(buf, unsignedVarInt32(headerBuf.Len()+p.buf.Len()))
+
+	_, err := headerBuf.WriteTo(buf) // Writing packet header
+
+	_, err = p.buf.WriteTo(buf) // Writing packet data
+
+	_, err = buf.WriteTo(w)
 	return err
 }
 
@@ -169,27 +171,25 @@ func writeLegacyPing(w io.Writer, l legacyPing) error {
 		return err
 	}
 
-	buf := bytes.NewBuffer(nil) // Buffer for hostname encoded as UTF-16BE
-	if _, err := unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM).NewEncoder().Writer(buf).Write([]byte(l.Host)); err != nil {
+	buf := bytes.NewBuffer(nil)
+
+	hostnameBuf := bytes.NewBuffer(nil) // Buffer for hostname encoded as UTF-16BE
+	if _, err := unicode.UTF16(unicode.BigEndian, unicode.IgnoreBOM).NewEncoder().Writer(hostnameBuf).Write([]byte(l.Host)); err != nil {
 		return err
 	}
-	if err := binary.Write(w, binary.BigEndian, uint16(buf.Len()+7)); err != nil {
-		return err
-	} // Hostname as UTF-16BE length + 7 as short
-	if _, err := w.Write([]byte{0x4a}); err != nil {
-		return err
-	} // Latest protocol version (74)
-	if err := binary.Write(w, binary.BigEndian, uint16(len(l.Host))); err != nil {
-		return err
-	} // Length of hostname in characters as short
-	if _, err := buf.WriteTo(w); err != nil {
-		return err
-	} // Hostname string
-	if err := binary.Write(w, binary.BigEndian, uint32(l.Port)); err != nil {
-		return err
-	} // Port as int
 
-	return nil
+	_ = binary.Write(buf, binary.BigEndian, uint16(hostnameBuf.Len()+7)) // Hostname as UTF-16BE length + 7 as short
+
+	_, _ = buf.Write([]byte{0x4a}) // Latest protocol version (74)
+
+	_ = binary.Write(buf, binary.BigEndian, uint16(len(l.Host))) // Length of hostname in characters as short
+
+	_, _ = hostnameBuf.WriteTo(buf) // Hostname string
+
+	_ = binary.Write(buf, binary.BigEndian, uint32(l.Port)) // Port as int
+
+	_, err := buf.WriteTo(w)
+	return err
 }
 
 // LegacyResponse represents ping response from legacy (1.4 to 1.6) Minecraft servers.
@@ -226,18 +226,22 @@ func readLegacyPong(r io.Reader) (*LegacyResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	rs.Version, err = readLegacyPongString(f[1])
 	if err != nil {
 		return nil, err
 	}
+
 	rs.MessageOfTheDay, err = readLegacyPongString(f[2])
 	if err != nil {
 		return nil, err
 	}
+
 	rs.PlayerCount, err = readLegacyPongUnsignedInt(f[3])
 	if err != nil {
 		return nil, err
 	}
+
 	rs.MaxPlayers, err = readLegacyPongUnsignedInt(f[4])
 	if err != nil {
 		return nil, err
@@ -297,11 +301,13 @@ func readAncientPong(r io.Reader) (*AncientResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	a.PlayerCount = uint32(c)
 	m, err := strconv.ParseUint(parts[2], 10, 32)
 	if err != nil {
 		return nil, err
 	}
+
 	a.MaxPlayers = uint32(m)
 
 	return a, nil
