@@ -41,15 +41,6 @@ func sendServerListPing(conn net.Conn, host string, port uint16) (*Response, err
 		return nil, fmt.Errorf("request error: %w", err)
 	}
 
-	//if err := writePing(conn, ping{Payload: long(time.Now().Unix())}); err != nil {
-	//	return nil, fmt.Errorf("ping error: %w", err)
-	//}
-
-	//_, err := readPong(conn)
-	//if err != nil {
-	//	return nil, fmt.Errorf("pong error: %w", err)
-	//}
-
 	res, err := readResponse(conn)
 	if err != nil {
 		return nil, fmt.Errorf("response error: %w", err)

@@ -12,12 +12,14 @@ import (
 	"golang.org/x/text/encoding/unicode"
 )
 
+type packetType unsignedVarInt32
+
 type packet struct {
-	id  unsignedVarInt32
+	id  packetType
 	buf *bytes.Buffer
 }
 
-func newPacket(p unsignedVarInt32) *packet {
+func newPacket(p packetType) *packet {
 	return &packet{p, bytes.NewBuffer(nil)}
 }
 
@@ -43,7 +45,7 @@ func (p *packet) WriteString(s string) {
 
 func (p *packet) Push(w io.Writer) error {
 	buf := bytes.NewBuffer(nil)
-	_ = writeUnsignedVarInt(buf, p.id)
+	_ = writeUnsignedVarInt(buf, unsignedVarInt32(p.id))
 	if err := writeUnsignedVarInt(w, unsignedVarInt32(buf.Len()+p.buf.Len())); err != nil {
 		return err
 	}
@@ -56,7 +58,7 @@ func (p *packet) Push(w io.Writer) error {
 
 // Handshake
 
-const packetHandshake unsignedVarInt32 = 0x0
+const packetHandshake packetType = 0x0
 
 type handshake struct {
 	Host string
@@ -79,29 +81,15 @@ func writeHandshake(w io.Writer, h handshake) error {
 
 // Request
 
-const packetRequest unsignedVarInt32 = 0x0
+const packetRequest packetType = 0x0
 
 func writeRequest(w io.Writer) error {
 	return newPacket(packetRequest).Push(w)
 }
 
-// Ping
-
-const packetPing unsignedVarInt32 = 0x1
-
-type ping struct {
-	Payload long
-}
-
-func writePing(w io.Writer, p ping) error {
-	pk := newPacket(packetPing)
-	pk.WriteLong(p.Payload)
-	return pk.Push(w)
-}
-
 // Response
 
-const packetResponse unsignedVarInt32 = 0x0
+const packetResponse packetType = 0x0
 
 // Chat represents arbitrary JSON-encoded chat components structure used in modern (1.7 and earlier)
 // Minecraft server descriptions.
@@ -143,7 +131,7 @@ func readResponse(r io.Reader) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p != packetResponse {
+	if packetType(p) != packetResponse {
 		return nil, fmt.Errorf("expected packet %#x but got %#x instead", packetResponse, p)
 	}
 
@@ -260,8 +248,10 @@ func readLegacyPong(r io.Reader) (*LegacyResponse, error) {
 
 // Ancient (Beta 1.8 to 1.3)
 
-const packetAncientPing byte = 0xfe
-const packetAncientPong byte = 0xff
+type ancientPacketType byte
+
+const packetAncientPing ancientPacketType = 0xfe
+const packetAncientPong ancientPacketType = 0xff
 
 // AncientResponse represents ping response from old servers (Beta 1.8 to 1.3) Minecraft servers.
 type AncientResponse struct {
@@ -271,7 +261,7 @@ type AncientResponse struct {
 }
 
 func writeAncientPing(w io.Writer) error {
-	_, err := w.Write([]byte{packetAncientPing})
+	_, err := w.Write([]byte{byte(packetAncientPing)})
 	return err
 }
 
@@ -280,7 +270,7 @@ func readAncientPong(r io.Reader) (*AncientResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	if p != packetAncientPong {
+	if ancientPacketType(p) != packetAncientPong {
 		return nil, fmt.Errorf("expected packet %#x but got %#x instead", packetAncientPong, p)
 	}
 
