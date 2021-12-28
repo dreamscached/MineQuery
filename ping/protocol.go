@@ -152,6 +152,10 @@ func readResponse(r io.Reader) (*Response, error) {
 
 // Legacy (<1.6)
 
+type legacyPacketType byte
+
+const packetLegacyPong legacyPacketType = 0xff
+
 type legacyPing struct {
 	Host string
 	Port uint16
@@ -202,19 +206,27 @@ type LegacyResponse struct {
 }
 
 func readLegacyPong(r io.Reader) (*LegacyResponse, error) {
-	buf := make([]byte, 3)
-	_, err := r.Read(buf)
+	p, err := (&byteReaderWrap{r}).ReadByte()
 	if err != nil {
 		return nil, err
 	}
+	if legacyPacketType(p) != packetLegacyPong {
+		return nil, fmt.Errorf("expected packet %#x but got %#x instead", packetLegacyPong, p)
+	}
 
-	buf = make([]byte, 6)
+	var l unsignedShort
+	if err = binary.Read(r, binary.BigEndian, &l); err != nil {
+		return nil, err
+	}
+
+	buf := make([]byte, 6)
 	_, err = r.Read(buf)
 	if err != nil {
 		return nil, err
 	}
 
-	buf, err = io.ReadAll(r)
+	buf = make([]byte, l * 2 - 6)
+	_, err = r.Read(buf)
 	if err != nil {
 		return nil, err
 	}
