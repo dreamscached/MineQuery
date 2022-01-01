@@ -70,7 +70,7 @@ func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*Le
 
 	res, err := sendLegacyServerListPing(conn, host, port)
 	if err != nil {
-		return nil, fmt.Errorf("test: %w", err)
+		return nil, fmt.Errorf("ping error: %w", err)
 	}
 
 	return res, nil
@@ -78,12 +78,12 @@ func PingLegacyWithTimeout(host string, port uint16, timeout time.Duration) (*Le
 
 func sendLegacyServerListPing(conn net.Conn, host string, port uint16) (*LegacyResponse, error) {
 	if err := writeLegacyPing(conn, legacyPing{Host: host, Port: port}); err != nil {
-		return nil, fmt.Errorf("ping error: %w", err)
+		return nil, fmt.Errorf("request error: %w", err)
 	}
 
 	res, err := readLegacyPong(conn)
 	if err != nil {
-		return nil, fmt.Errorf("pong error: %w", err)
+		return nil, fmt.Errorf("response error: %w", err)
 	}
 
 	return res, nil
@@ -110,7 +110,7 @@ func PingAncientWithTimeout(host string, port uint16, timeout time.Duration) (*A
 
 	res, err := sendAncientServerListPing(conn)
 	if err != nil {
-		return nil, fmt.Errorf("test: %w", err)
+		return nil, fmt.Errorf("ping error: %w", err)
 	}
 
 	return res, nil
@@ -118,12 +118,12 @@ func PingAncientWithTimeout(host string, port uint16, timeout time.Duration) (*A
 
 func sendAncientServerListPing(conn net.Conn) (*AncientResponse, error) {
 	if err := writeAncientPing(conn); err != nil {
-		return nil, fmt.Errorf("ping error: %w", err)
+		return nil, fmt.Errorf("request error: %w", err)
 	}
 
 	res, err := readAncientPong(conn)
 	if err != nil {
-		return nil, fmt.Errorf("pong error: %w", err)
+		return nil, fmt.Errorf("response error: %w", err)
 	}
 
 	return res, nil
