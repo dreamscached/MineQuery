@@ -50,11 +50,11 @@ func (p *packet) Push(w io.Writer) error {
 	_ = writeUnsignedVarInt(headerBuf, unsignedVarInt32(p.id))
 	_ = writeUnsignedVarInt(buf, unsignedVarInt32(headerBuf.Len()+p.buf.Len()))
 
-	_, err := headerBuf.WriteTo(buf) // Writing packet header
+	_, _ = headerBuf.WriteTo(buf) // Writing packet header
 
-	_, err = p.buf.WriteTo(buf) // Writing packet data
+	_, _ = p.buf.WriteTo(buf) // Writing packet data
 
-	_, err = buf.WriteTo(w)
+	_, err := buf.WriteTo(w)
 	return err
 }
 
