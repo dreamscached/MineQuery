@@ -9,11 +9,17 @@
   <a href="https://github.com/alteamc/minequery/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/alteamc/minequery"></a>
 </p>
 
-## Features
+## Minecraft version support
 
-*   Modern Minecraft support (1.7 and newer)
-*   Legacy protocol support (1.6 and older)
-*   Older versions support (Beta 1.8 to Release 1.3)
+### Server List Ping
+
+|            | 1.7+ | 1.4 to 1.6 | Beta 1.8 to Release 1.3 |
+|------------|------|------------|-------------------------|
+| Supported? | ✓    | ✓          | ✓                       |
+
+### Query
+
+Query protocol is currently unsupported.
 
 ## Usage
 
@@ -84,7 +90,7 @@ func main() {
 
 ### Pinging with timeout
 
-All `Ping` methods have `WithTimeout` variants that let you pass a `time.Duration` value used for socket read/write 
+All `Ping` methods have `WithTimeout` variants that let you pass a `time.Duration` value used for socket read/write
 timeout.
 
 ```go
