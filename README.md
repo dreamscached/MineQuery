@@ -7,6 +7,7 @@
   <a href="https://github.com/alteamc/minequery/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/alteamc/minequery"></a>
   <a href="https://pkg.go.dev/github.com/alteamc/minequery"><img alt="Go Reference" src="https://pkg.go.dev/badge/github.com/alteamc/minequery.svg"></a>
   <a href="https://github.com/alteamc/minequery/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/alteamc/minequery"></a>
+  <a href="https://discord.gg/9ruheUG3Wg"><img alt="License" src="https://img.shields.io/discord/929337829610369095"></a>
 </p>
 
 ## Minecraft version support
