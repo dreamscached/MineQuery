@@ -7,15 +7,16 @@
   <a href="https://github.com/alteamc/minequery/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/alteamc/minequery"></a>
   <a href="https://pkg.go.dev/github.com/alteamc/minequery"><img alt="Go Reference" src="https://pkg.go.dev/badge/github.com/alteamc/minequery.svg"></a>
   <a href="https://github.com/alteamc/minequery/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/alteamc/minequery"></a>
+  <a href="https://discord.gg/9ruheUG3Wg"><img alt="License" src="https://img.shields.io/discord/929337829610369095"></a>
 </p>
 
 ## Minecraft version support
 
 ### Server List Ping
 
-|            | 1.7+ | 1.4 to 1.5 | 1.6 | Beta 1.8 to 1.3 |
-|------------|------|------------|-----|-----------------|
-| Supported? | ✓    | ✓          | ✓   | ✓               |
+| 1.7+ | 1.6 | 1.4 to 1.5 | Beta 1.8 to 1.3 |
+|------|-----|------------|-----------------|
+| ✓    | ✓   | ✓          | ✓               |
 
 ### Query
 
