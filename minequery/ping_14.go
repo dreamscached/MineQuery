@@ -96,7 +96,7 @@ func readResponsePacket14(reader io.Reader) (io.Reader, error) {
 // Response processing
 
 func parseResponseData14(reader io.Reader) (Status14, error) {
-	data, err := io.ReadAll(reader)
+	data, err := ReadAll(reader)
 	if err != nil {
 		return Status14{}, err
 	}

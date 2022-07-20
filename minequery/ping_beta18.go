@@ -96,7 +96,7 @@ func readResponsePacketBeta18(reader io.Reader) (io.Reader, error) {
 // Response processing
 
 func parseResponseDataBeta18(reader io.Reader) (StatusBeta18, error) {
-	data, err := io.ReadAll(reader)
+	data, err := ReadAll(reader)
 	if err != nil {
 		return StatusBeta18{}, err
 	}
