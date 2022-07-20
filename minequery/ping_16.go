@@ -451,8 +451,8 @@ func (p Pinger) Ping16(host string, port int) (Status16, error) {
 		return Status16{}, fmt.Errorf("could not write ping packet: %w", err)
 	}
 
-	// Read status response
-	content, err := readResponsePacket16(conn)
+	// Read status response (note: uses the same packet reading approach as 1.4)
+	content, err := readResponsePacket14(conn)
 	if err != nil {
 		return Status16{}, fmt.Errorf("could not read response packet: %w", err)
 	}
@@ -498,30 +498,6 @@ func writePingPacket16(writer io.Writer, protocol byte, host string, port int) e
 
 	_, err := packet.WriteTo(writer)
 	return err
-}
-
-func readResponsePacket16(reader io.Reader) (io.Reader, error) {
-	// Read packet type, return error if it isn't FF kick packet
-	id, err := readByte(reader)
-	if err != nil {
-		return nil, err
-	} else if id != ping16ResponsePacketID {
-		return nil, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping16ResponsePacketID, id)
-	}
-
-	// Read packet length, return error if it isn't readable as unsigned short
-	// Worth noting that this needs to be multiplied by two further on (for encoding reasons, most probably)
-	length, err := readUShort(reader)
-	if err != nil {
-		return nil, err
-	}
-
-	var data bytes.Buffer
-	if _, err = io.CopyN(&data, reader, int64(length*2)); err != nil {
-		return nil, err
-	}
-
-	return utf16BEDecoder.Reader(&data), nil
 }
 
 // Response processing
