@@ -1682,10 +1682,10 @@ func (p Pinger) Ping17(host string, port int) (Status17, error) {
 	if protocolVersion == 0 {
 		protocolVersion = Ping17ProtocolVersionUndefined
 	}
-	if err = writeHandshake17Packet(conn, protocolVersion, host, port); err != nil {
+	if err = writeHandshakePacket17(conn, protocolVersion, host, port); err != nil {
 		return Status17{}, fmt.Errorf("could not write handshake packet: %w", err)
 	}
-	if err = writeStatusReq17Packet(conn); err != nil {
+	if err = writeStatusReqPacket17(conn); err != nil {
 		return Status17{}, fmt.Errorf("could not write status request packet: %w", err)
 	}
 
@@ -1768,7 +1768,7 @@ func writePacket17(writer io.Writer, packetID uint32, data io.Reader) error {
 	return err
 }
 
-func writeHandshake17Packet(writer io.Writer, protocol int32, host string, port int) error {
+func writeHandshakePacket17(writer io.Writer, protocol int32, host string, port int) error {
 	var buffer bytes.Buffer
 
 	// Write protocol version as VarInt
@@ -1789,7 +1789,7 @@ func writeHandshake17Packet(writer io.Writer, protocol int32, host string, port 
 	return writePacket17(writer, ping17HandshakePacketID, &buffer)
 }
 
-func writeStatusReq17Packet(writer io.Writer) error {
+func writeStatusReqPacket17(writer io.Writer) error {
 	// Write empty status request packet with only packet ID and zero length
 	return writePacket17(writer, ping17StatusRequestPacketID, &bytes.Buffer{})
 }
