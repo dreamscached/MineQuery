@@ -1657,9 +1657,7 @@ type status17JsonMapping struct {
 			ID   string `json:"id"`
 		} `json:"sample"`
 	} `json:"players"`
-	Description struct {
-		Text string `json:"text"`
-	} `json:"description"`
+	Description interface{} `json:"description"`
 	Favicon      string `json:"favicon,omitempty"`
 	PreviewsChat bool   `json:"previewsChat,omitempty"`
 }
