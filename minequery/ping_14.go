@@ -24,10 +24,10 @@ type Status14 struct {
 
 // Ping14 pings 1.4 to 1.6 (exclusively) Minecraft servers (Notchian servers of more late versions also respond to
 // this ping packet.)
+//goland:noinspection GoUnusedExportedFunction
 func Ping14(host string, port int) (Status14, error) {
 	return defaultPinger.Ping14(host, port)
 }
-
 
 // Ping14 pings 1.4 to 1.6 (exclusively) Minecraft servers (Notchian servers of more late versions also respond to
 // this ping packet.)

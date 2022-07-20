@@ -24,6 +24,7 @@ type StatusBeta18 struct {
 
 // PingBeta18 pings Beta 1.8 to Release 1.4 (exclusively) Minecraft servers (Notchian servers of more late versions
 // also respond to this ping packet.)
+//goland:noinspection GoUnusedExportedFunction
 func PingBeta18(host string, port int) (StatusBeta18, error) {
 	return defaultPinger.PingBeta18(host, port)
 }

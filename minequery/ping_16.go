@@ -38,6 +38,7 @@ const Ping16ProtocolVersionIncompatible byte = 127
 
 // Full version/snapshot to protocol version mapping list
 // Extracted from https://wiki.vg/Protocol_version_numbers#Versions_before_the_Netty_rewrite
+//goland:noinspection GoUnusedConst
 const (
 	// Ping16ProtocolVersion13w39b holds protocol version (=80) for Minecraft 13w39b.
 	Ping16ProtocolVersion13w39b byte = 80
@@ -427,6 +428,7 @@ func (s Status16) IsIncompatible() bool {
 
 // Ping16 pings 1.6 to 1.7 (exclusively) Minecraft servers (Notchian servers of more late versions also respond
 // to this ping packet.)
+//goland:noinspection GoUnusedExportedFunction
 func Ping16(host string, port int) (Status16, error) {
 	return defaultPinger.Ping16(host, port)
 }

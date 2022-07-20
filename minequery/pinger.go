@@ -9,16 +9,19 @@ import (
 type PingerOption func(*Pinger)
 
 // WithTimeout sets Pinger Dialer timeout to the provided value.
+//goland:noinspection GoUnusedExportedFunction
 func WithTimeout(timeout time.Duration) PingerOption {
 	return func(p *Pinger) { p.Timeout = timeout }
 }
 
 // WithUseStrict sets Pinger UseStrict to the provided value.
+//goland:noinspection GoUnusedExportedFunction
 func WithUseStrict(useStrict bool) PingerOption {
 	return func(p *Pinger) { p.UseStrict = useStrict }
 }
 
 // WithProtocol16Version sets Pinger ProtocolVersion16 value.
+//goland:noinspection GoUnusedExportedFunction
 func WithProtocol16Version(version byte) PingerOption {
 	return func(p *Pinger) {
 		p.ProtocolVersion16 = version
@@ -26,6 +29,7 @@ func WithProtocol16Version(version byte) PingerOption {
 }
 
 // WithProtocol17Version sets Pinger ProtocolVersion17 value.
+//goland:noinspection GoUnusedExportedFunction
 func WithProtocol17Version(version int32) PingerOption {
 	return func(p *Pinger) {
 		p.ProtocolVersion17 = version
