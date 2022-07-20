@@ -37,8 +37,8 @@ func WithProtocol17Version(version int32) PingerOption {
 }
 
 // defaultPinger is a default (zero-value) Pinger used in functions
-// that don't have Pinger as receiver.
-var defaultPinger Pinger
+// that don't have Pinger as receiver. The default Pinger has timeout set to 15 seconds.
+var defaultPinger = NewPinger(WithTimeout(15 * time.Second))
 
 // Pinger contains options to ping Minecraft servers.
 type Pinger struct {
