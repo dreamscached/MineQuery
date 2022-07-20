@@ -3,6 +3,7 @@ package minequery
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -27,10 +28,9 @@ var (
 	ping16ResponsePacketID byte = 0xff
 )
 
-const (
-	ping16ResponseFieldSeparator = "\x00"
-	ping16ResponsePrefix         = "§1\x00"
-)
+const ping16ResponseFieldSeparator = "\x00"
+
+var ping16ResponsePrefix = []byte{0xc2, 0xa7, 0x31, 0x0}
 
 // Ping16ProtocolVersionIncompatible holds a special value (=127) returned in response that indicates incompatible
 // Minecraft version (1.7+).
@@ -442,89 +442,105 @@ func (p Pinger) Ping16(host string, port int) (Status16, error) {
 		return Status16{}, err
 	}
 
-	// Write hardcoded (it doesn't change ever) packet header
-	if err = writeBytes(conn, ping16PingPacketHeader); err != nil {
-		return Status16{}, nil
-	}
-
-	// Encode hostname to UTF16BE and store in buffer to calculate length further on
-	var hostnameBytes bytes.Buffer
-	if _, err = utf16BEEncoder.Writer(&hostnameBytes).Write([]byte(host)); err != nil {
-		return Status16{}, err
-	}
-
-	// Write packet length (7 + length of hostname string)
-	if err = writeUShort(conn, uint16(7+hostnameBytes.Len())); err != nil {
-		return Status16{}, err
-	}
-
-	// Get preferred protocol version and fallback to Ping16ProtocolVersion162 if not set
-	// and write it to packet
+	// Send ping packet
 	protocolVersion := p.ProtocolVersion16
 	if protocolVersion == 0 {
 		protocolVersion = Ping16ProtocolVersion162
 	}
-	if err = writeByte(conn, protocolVersion); err != nil {
-		return Status16{}, err
+	if err = writePingPacket16(conn, protocolVersion, host, port); err != nil {
+		return Status16{}, fmt.Errorf("could not write ping packet: %w", err)
 	}
+
+	// Read status response
+	content, err := readResponsePacket16(conn)
+	if err != nil {
+		return Status16{}, fmt.Errorf("could not read response packet: %w", err)
+	}
+
+	// Parse response data from status packet
+	res, err := parseResponseData16(content, p.UseStrict)
+	if err != nil {
+		return Status16{}, fmt.Errorf("could not parse status from response packet: %w", err)
+	}
+
+	return res, nil
+}
+
+// Communication
+
+func writePingPacket16(writer io.Writer, protocol byte, host string, port int) error {
+	var packet bytes.Buffer
+
+	// Write hardcoded (it doesn't change ever) packet header
+	_ = writeBytes(&packet, ping16PingPacketHeader)
+
+	// Encode hostname to UTF16BE and store in buffer to calculate length further on
+	var hostnameBytes bytes.Buffer
+	if _, err := utf16BEEncoder.Writer(&hostnameBytes).Write([]byte(host)); err != nil {
+		return err
+	}
+
+	// Write packet length (7 + length of hostname string)
+	_ = writeUShort(&packet, uint16(7+hostnameBytes.Len()))
+
+	// Get preferred protocol version and fallback to Ping16ProtocolVersion162 if not set
+	// and write it to packet
+	_ = writeByte(&packet, protocol)
 
 	// Write hostname string length
-	if err = writeUShort(conn, uint16(len(host))); err != nil {
-		return Status16{}, err
-	}
+	_ = writeUShort(&packet, uint16(len(host)))
 
 	// Write hostname string
-	if err = writeBuffer(conn, &hostnameBytes); err != nil {
-		return Status16{}, err
-	}
+	_ = writeBuffer(&packet, &hostnameBytes)
 
 	// Write target server port
-	if err = writeUInt(conn, uint32(port)); err != nil {
-		return Status16{}, err
-	}
+	_ = writeUInt(&packet, uint32(port))
 
+	_, err := packet.WriteTo(writer)
+	return err
+}
+
+func readResponsePacket16(reader io.Reader) (io.Reader, error) {
 	// Read packet type, return error if it isn't FF kick packet
-	packetType, err := readByte(conn)
+	id, err := readByte(reader)
 	if err != nil {
-		return Status16{}, err
-	} else if packetType != ping16ResponsePacketID {
-		return Status16{}, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping16ResponsePacketID, packetType)
+		return nil, err
+	} else if id != ping16ResponsePacketID {
+		return nil, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping16ResponsePacketID, id)
 	}
 
 	// Read packet length, return error if it isn't readable as unsigned short
 	// Worth noting that this needs to be multiplied by two further on (for encoding reasons, most probably)
-	length, err := readUShort(conn)
+	length, err := readUShort(reader)
 	if err != nil {
-		return Status16{}, err
+		return nil, err
 	}
 
-	// Read remainder of the status packet as raw bytes
-	// This is a UTF-16BE string separated by § (paragraph sign) where:
-	// [0]: Protocol version
-	// [1]: Minecraft version
-	// [3]: MOTD
-	// [4]: Online players
-	// [5]: Max players
-	dataEncoded, err := readNBytes(conn, int(length*2))
-	if err != nil {
-		return Status16{}, err
+	var data bytes.Buffer
+	if _, err = io.CopyN(&data, reader, int64(length*2)); err != nil {
+		return nil, err
 	}
 
-	// Decode UTF16-BE and return error if unable to decode
-	dataString, err := utf16BEDecoder.String(string(dataEncoded))
+	return utf16BEDecoder.Reader(&data), nil
+}
+
+// Response processing
+
+func parseResponseData16(reader io.Reader, useStrict bool) (Status16, error) {
+	data, err := io.ReadAll(reader)
 	if err != nil {
 		return Status16{}, err
 	}
 
 	// Check if data string begins with '§1\x00' (00 a7 00 31 00 00) and strip it
-	if strings.HasPrefix(dataString, ping16ResponsePrefix) {
-		dataString = strings.TrimPrefix(dataString, ping16ResponsePrefix)
-	} else if p.UseStrict {
+	if bytes.HasPrefix(data, ping16ResponsePrefix) {
+		data = data[len(ping16ResponsePrefix):]
+	} else if useStrict {
 		return Status16{}, fmt.Errorf("%w: status string is missing necessary prefix", ErrInvalidStatus)
 	}
 
 	// Split status string, parse and map to struct returning errors if conversions fail
-	fields := strings.Split(dataString, ping16ResponseFieldSeparator)
+	fields := strings.Split(string(data), ping16ResponseFieldSeparator)
 	if len(fields) != 5 {
 		return Status16{}, fmt.Errorf("%w: expected 5 status fields, got %d", ErrInvalidStatus, len(fields))
 	}
@@ -533,19 +549,19 @@ func (p Pinger) Ping16(host string, port int) (Status16, error) {
 	// Parse protocol version
 	serverProtocolVersion, err := strconv.ParseInt(serverProtocolVersionString, 10, 32)
 	if err != nil {
-		return Status16{}, fmt.Errorf("%w: %s", ErrInvalidStatus, err)
+		return Status16{}, fmt.Errorf("%w: could not parse protocol version: %s", ErrInvalidStatus, err)
 	}
 
 	// Parse online players
 	online, err := strconv.ParseInt(onlineString, 10, 32)
 	if err != nil {
-		return Status16{}, fmt.Errorf("%w: %s", ErrInvalidStatus, err)
+		return Status16{}, fmt.Errorf("%w: could not parse online players count: %s", ErrInvalidStatus, err)
 	}
 
 	// Parse max players
 	max, err := strconv.ParseInt(maxString, 10, 32)
 	if err != nil {
-		return Status16{}, fmt.Errorf("%w: %s", ErrInvalidStatus, err)
+		return Status16{}, fmt.Errorf("%w: could not parse max players count: %s", ErrInvalidStatus, err)
 	}
 
 	return Status16{
