@@ -1649,6 +1649,7 @@ type status17JsonMapping struct {
 		Name     string `json:"name"`
 		Protocol int    `json:"protocol"`
 	} `json:"version"`
+
 	Players struct {
 		Max    int `json:"max"`
 		Online int `json:"online"`
@@ -1657,9 +1658,11 @@ type status17JsonMapping struct {
 			ID   string `json:"id"`
 		} `json:"sample"`
 	} `json:"players"`
+
 	Description interface{} `json:"description"`
-	Favicon      string `json:"favicon,omitempty"`
-	PreviewsChat bool   `json:"previewsChat,omitempty"`
+	Favicon     string      `json:"favicon,omitempty"`
+
+	PreviewsChat bool `json:"previewsChat,omitempty"`
 }
 
 // Ping17 pings 1.7+ Minecraft servers.
@@ -1675,82 +1678,26 @@ func (p Pinger) Ping17(host string, port int) (Status17, error) {
 		return Status17{}, err
 	}
 
-	var packetBytes bytes.Buffer
-	var packetDataBytes bytes.Buffer
-
-	// Write handshake packet ID (00)
-	_ = writeUVarInt(&packetBytes, ping17HandshakePacketID)
-
-	// Write the preferred protocol version falling back to undefined (-1)
 	protocolVersion := p.ProtocolVersion17
 	if protocolVersion == 0 {
 		protocolVersion = Ping17ProtocolVersionUndefined
 	}
-	_ = writeVarInt(&packetBytes, protocolVersion)
-
-	// Write hostname string length
-	_ = writeUVarInt(&packetBytes, uint32(len(host)))
-
-	// Write hostname string as bytes
-	_ = writeBytes(&packetBytes, []byte(host))
-
-	// Write server port as unsigned VarInt
-	_ = writeUShort(&packetBytes, uint16(port))
-
-	// Write next state type status (1) as VarInt
-	_ = writeUVarInt(&packetBytes, ping17NextStateStatus)
-
-	// Write packet (first write length, then data)
-	_ = writeUVarInt(&packetDataBytes, uint32(packetBytes.Len()))
-	_ = writeBuffer(&packetDataBytes, &packetBytes)
-	if err = writeBuffer(conn, &packetDataBytes); err != nil {
-		return Status17{}, err
+	if err = writeHandshake17Packet(conn, protocolVersion, host, port); err != nil {
+		return Status17{}, fmt.Errorf("could not write handshake packet: %w", err)
+	}
+	if err = writeStatusReq17Packet(conn); err != nil {
+		return Status17{}, fmt.Errorf("could not write status request packet: %w", err)
 	}
 
-	// Write status request packet ID (00)
-	_ = writeUVarInt(&packetBytes, ping17StatusRequestPacketID)
-
-	// Write packet (first write length, then data)
-	_ = writeUVarInt(&packetDataBytes, uint32(packetBytes.Len()))
-	_ = writeBuffer(&packetDataBytes, &packetBytes)
-	if err = writeBuffer(conn, &packetDataBytes); err != nil {
-		return Status17{}, err
-	}
-
-	// Read response packet length
-	length, err := readUVarInt(conn)
+	content, err := readResponsePacket17(conn)
 	if err != nil {
-		return Status17{}, err
+		return Status17{}, fmt.Errorf("could not read response packet: %w", err)
 	}
-
-	// Read entire response packet to a buffer
-	var responsePacketBytes bytes.Buffer
-	if _, err = io.CopyN(&responsePacketBytes, conn, int64(length)); err != nil {
-		return Status17{}, nil
-	}
-
-	// Read packet ID and return an error if it isn't a ping response
-	packetType, err := readUVarInt(&responsePacketBytes)
-	if err != nil {
-		return Status17{}, err
-	} else if packetType != ping17StatusResponsePacketID {
-		return Status17{}, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping17StatusResponsePacketID, packetType)
-	}
-
-	// Read length of JSON-encoded status data string
-	dataLength, err := readUVarInt(&responsePacketBytes)
-	if err != nil {
-		return Status17{}, err
-	}
-
-	// Read <length> of packet bytes to later on parse status object from
-	dataBytes := make([]byte, dataLength)
-	_, _ = responsePacketBytes.Read(dataBytes)
 
 	// Parse JSON
 	var statusMapping status17JsonMapping
-	if err = json.Unmarshal(dataBytes, &statusMapping); err != nil {
-		return Status17{}, err
+	if err = json.NewDecoder(content).Decode(&statusMapping); err != nil {
+		return Status17{}, fmt.Errorf("could not decode status from response: %w", err)
 	}
 
 	// Map raw status object to response struct
@@ -1798,4 +1745,87 @@ func (p Pinger) Ping17(host string, port int) (Status17, error) {
 	}
 
 	return status, nil
+}
+
+func writePacket17(writer io.Writer, packetID uint32, data io.Reader) error {
+	var content bytes.Buffer
+
+	// Write packet ID as unsigned VarInt to content buffer
+	_ = writeUVarInt(&content, packetID)
+
+	// Copy packet data to content buffer
+	_, _ = io.Copy(&content, data)
+
+	var packet bytes.Buffer
+
+	// Write packet data length to packet buffer as unsigned VarInt
+	_ = writeUVarInt(&packet, uint32(content.Len()))
+
+	// Write content buffer to packet buffer
+	_, _ = content.WriteTo(&packet)
+
+	_, err := packet.WriteTo(writer)
+	return err
+}
+
+func writeHandshake17Packet(writer io.Writer, protocol int32, host string, port int) error {
+	var buffer bytes.Buffer
+
+	// Write protocol version as VarInt
+	_ = writeVarInt(&buffer, protocol)
+
+	// Write length of hostname string as unsigned VarInt
+	_ = writeUVarInt(&buffer, uint32(len(host)))
+
+	// Write hostname string as byte array
+	_ = writeBytes(&buffer, []byte(host))
+
+	// Write port as unsigned short
+	_ = writeUShort(&buffer, uint16(port))
+
+	// Write next state as unsigned VarInt
+	_ = writeUVarInt(&buffer, ping17NextStateStatus)
+
+	return writePacket17(writer, ping17HandshakePacketID, &buffer)
+}
+
+func writeStatusReq17Packet(writer io.Writer) error {
+	// Write empty status request packet with only packet ID and zero length
+	return writePacket17(writer, ping17StatusRequestPacketID, &bytes.Buffer{})
+}
+
+func readResponsePacket17(reader io.Reader) (io.Reader, error) {
+	// Read packet length as unsigned VarInt
+	packetLength, err := readUVarInt(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	// Read entire packet to a buffer
+	var packet bytes.Buffer
+	if _, err = io.CopyN(&packet, reader, int64(packetLength)); err != nil {
+		return nil, err
+	}
+
+	// Read packet ID as unsigned VarInt
+	id, err := readUVarInt(&packet)
+	if err != nil {
+		return nil, err
+	} else if id != ping17StatusResponsePacketID {
+		return nil, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping17StatusResponsePacketID, id)
+	}
+
+	// Read JSON data length as unsigned VarInt
+	dataLength, err := readUVarInt(&packet)
+	if err != nil {
+		return nil, err
+	}
+
+	// Read JSON data to a buffer
+	var data bytes.Buffer
+	if _, err = io.CopyN(&data, &packet, int64(dataLength)); err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }
