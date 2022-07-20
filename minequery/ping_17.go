@@ -26,6 +26,7 @@ var (
 // has not yet determined a version it will use to connect to server and does a preflight ping to determine it.
 const Ping17ProtocolVersionUndefined int32 = -1
 
+//goland:noinspection GoUnusedConst
 const (
 	// Ping17ProtocolVersion1191pre1 holds a protocol version (=1073741917) for Minecraft 1.19.1-pre1.
 	Ping17ProtocolVersion1191pre1 int32 = 1073741917
@@ -1666,6 +1667,7 @@ type status17JsonMapping struct {
 }
 
 // Ping17 pings 1.7+ Minecraft servers.
+//goland:noinspection GoUnusedExportedFunction
 func Ping17(host string, port int) (Status17, error) {
 	return defaultPinger.Ping17(host, port)
 }
@@ -1678,6 +1680,7 @@ func (p Pinger) Ping17(host string, port int) (Status17, error) {
 		return Status17{}, err
 	}
 
+	// Send handshake packet
 	protocolVersion := p.ProtocolVersion17
 	if protocolVersion == 0 {
 		protocolVersion = Ping17ProtocolVersionUndefined
@@ -1685,67 +1688,28 @@ func (p Pinger) Ping17(host string, port int) (Status17, error) {
 	if err = writeHandshakePacket17(conn, protocolVersion, host, port); err != nil {
 		return Status17{}, fmt.Errorf("could not write handshake packet: %w", err)
 	}
+
+	// Send status request packet
 	if err = writeStatusReqPacket17(conn); err != nil {
 		return Status17{}, fmt.Errorf("could not write status request packet: %w", err)
 	}
 
+	// Read status response
 	content, err := readResponsePacket17(conn)
 	if err != nil {
 		return Status17{}, fmt.Errorf("could not read response packet: %w", err)
 	}
 
-	// Parse JSON
-	var statusMapping status17JsonMapping
-	if err = json.NewDecoder(content).Decode(&statusMapping); err != nil {
-		return Status17{}, fmt.Errorf("could not decode status from response: %w", err)
+	// Parse response data from status packet
+	res, err := parseResponseData(content, p.UseStrict)
+	if err != nil {
+		return Status17{}, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
 
-	// Map raw status object to response struct
-	status := Status17{
-		VersionName:     statusMapping.Version.Name,
-		ProtocolVersion: statusMapping.Version.Protocol,
-		OnlinePlayers:   statusMapping.Players.Online,
-		MaxPlayers:      statusMapping.Players.Max,
-		Description:     statusMapping.Description,
-		PreviewsChat:    statusMapping.PreviewsChat,
-	}
-
-	// Process players sample (optionally, if UseStrict, returning on tolerable errors)
-	status.SamplePlayers = make([]PlayerEntry17, len(statusMapping.Players.Sample))
-	for i, entry := range statusMapping.Players.Sample {
-		id, err := uuid.Parse(entry.ID)
-		if err != nil {
-			if p.UseStrict {
-				return Status17{}, fmt.Errorf("%w: invalid sample player UUID: %s", ErrInvalidStatus, err)
-			} else {
-				continue
-			}
-		}
-
-		status.SamplePlayers[i] = PlayerEntry17{entry.Name, id}
-	}
-
-	// Process icon (optionally, if UseStrict, returning on tolerable errors)
-	if statusMapping.Favicon != "" {
-		if !strings.HasPrefix(statusMapping.Favicon, ping17StatusImagePrefix) {
-			if p.UseStrict {
-				return Status17{}, fmt.Errorf("%w: invalid favicon data URL", ErrInvalidStatus)
-			}
-		} else {
-			pngData, err := base64.StdEncoding.DecodeString(statusMapping.Favicon[len(ping17StatusImagePrefix):])
-			if err != nil {
-				return Status17{}, fmt.Errorf("%w: invalid favicon image: %s", ErrInvalidStatus, err)
-			}
-
-			status.Icon, err = png.Decode(bytes.NewReader(pngData))
-			if err != nil {
-				return Status17{}, fmt.Errorf("%w: invalid favicon image: %s", ErrInvalidStatus, err)
-			}
-		}
-	}
-
-	return status, nil
+	return res, nil
 }
+
+// Communication
 
 func writePacket17(writer io.Writer, packetID uint32, data io.Reader) error {
 	var content bytes.Buffer
@@ -1828,4 +1792,64 @@ func readResponsePacket17(reader io.Reader) (io.Reader, error) {
 	}
 
 	return &data, nil
+}
+
+// Response processing
+
+func parseResponseData(reader io.Reader, useStrict bool) (Status17, error) {
+	// Parse JSON to struct
+	var statusMapping status17JsonMapping
+	if err := json.NewDecoder(reader).Decode(&statusMapping); err != nil {
+		return Status17{}, err
+	}
+
+	// Map raw status object to response struct (just these parts that can be converted right here)
+	status := Status17{
+		VersionName:     statusMapping.Version.Name,
+		ProtocolVersion: statusMapping.Version.Protocol,
+		OnlinePlayers:   statusMapping.Players.Online,
+		MaxPlayers:      statusMapping.Players.Max,
+		Description:     statusMapping.Description,
+		PreviewsChat:    statusMapping.PreviewsChat,
+	}
+
+	// Process players sample (optionally, if UseStrict, returning on tolerable errors)
+	status.SamplePlayers = make([]PlayerEntry17, len(statusMapping.Players.Sample))
+	for i, entry := range statusMapping.Players.Sample {
+		id, err := uuid.Parse(entry.ID)
+		if err != nil {
+			// Incorrect UUID is only critical in UseStrict mode; else just skip over it
+			if useStrict {
+				return Status17{}, fmt.Errorf("%w: invalid sample player UUID: %s", ErrInvalidStatus, err)
+			} else {
+				continue
+			}
+		}
+
+		status.SamplePlayers[i] = PlayerEntry17{entry.Name, id}
+	}
+
+	// Process icon (optionally, if UseStrict, returning on tolerable errors)
+	if statusMapping.Favicon != "" {
+		if !strings.HasPrefix(statusMapping.Favicon, ping17StatusImagePrefix) {
+			// Incorrect prefix on favicon string only concerns us if in UseStrict mode; pass otherwise
+			if useStrict {
+				return Status17{}, fmt.Errorf("%w: invalid favicon data URL", ErrInvalidStatus)
+			}
+		} else {
+			// Decode Base64 string from favicon data URL
+			pngData, err := base64.StdEncoding.DecodeString(statusMapping.Favicon[len(ping17StatusImagePrefix):])
+			if err != nil {
+				return Status17{}, fmt.Errorf("%w: invalid favicon image: %s", ErrInvalidStatus, err)
+			}
+
+			// Decode PNG image from binary data
+			status.Icon, err = png.Decode(bytes.NewReader(pngData))
+			if err != nil {
+				return Status17{}, fmt.Errorf("%w: invalid favicon image: %s", ErrInvalidStatus, err)
+			}
+		}
+	}
+
+	return status, nil
 }
