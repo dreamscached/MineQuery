@@ -12,8 +12,10 @@ func (p Pinger) openTCPConn(host string, port int) (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err = conn.SetDeadline(time.Now().Add(p.Timeout)); err != nil {
-		return nil, err
+	if p.Timeout != 0 {
+		if err = conn.SetDeadline(time.Now().Add(p.Timeout)); err != nil {
+			return nil, err
+		}
 	}
 	return conn, nil
 }
