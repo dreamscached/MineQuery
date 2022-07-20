@@ -83,14 +83,6 @@ func writeVarInt(writer io.Writer, value int32) error {
 	return err
 }
 
-func readVarInt(reader io.Reader) (int32, error) {
-	value, err := binary.ReadVarint(newByteReader(reader))
-	if err != nil {
-		return 0, err
-	}
-	return int32(value), nil
-}
-
 func writeUVarInt(writer io.Writer, value uint32) error {
 	intBytes := make([]byte, binary.MaxVarintLen32)
 	written := binary.PutUvarint(intBytes, uint64(value))
