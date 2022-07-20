@@ -75,6 +75,9 @@ func (p Pinger) Ping14(host string, port int) (Status14, error) {
 
 	// Split status string, parse and map to struct returning errors if conversions fail
 	fields := strings.Split(dataString, ping14ResponseFieldSeparator)
+	if len(fields) != 5 {
+		return Status14{}, fmt.Errorf("%w: expected 5 status fields, got %d", ErrInvalidStatus, len(fields))
+	}
 	protocolVersionString, serverVersion, motd, onlineString, maxString := fields[0], fields[1], fields[2], fields[3], fields[4]
 
 	// Parse protocol version

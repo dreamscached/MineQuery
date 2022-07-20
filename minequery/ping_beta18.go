@@ -74,6 +74,9 @@ func (p Pinger) PingBeta18(host string, port int) (StatusBeta18, error) {
 
 	// Split status string, parse and map to struct returning errors if conversions fail
 	fields := strings.Split(string(dataString), pingBeta18ResponseFieldSeparator)
+	if len(fields) != 3 {
+		return StatusBeta18{}, fmt.Errorf("%w: expected 3 status fields, got %d", ErrInvalidStatus, len(fields))
+	}
 	motd, onlineString, maxString := fields[0], fields[1], fields[2]
 
 	// Check MOTD length
