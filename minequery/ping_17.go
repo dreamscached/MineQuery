@@ -1701,7 +1701,7 @@ func (p Pinger) Ping17(host string, port int) (Status17, error) {
 	}
 
 	// Parse response data from status packet
-	res, err := parseResponseData(content, p.UseStrict)
+	res, err := parseResponseData17(content, p.UseStrict)
 	if err != nil {
 		return Status17{}, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
@@ -1796,7 +1796,7 @@ func readResponsePacket17(reader io.Reader) (io.Reader, error) {
 
 // Response processing
 
-func parseResponseData(reader io.Reader, useStrict bool) (Status17, error) {
+func parseResponseData17(reader io.Reader, useStrict bool) (Status17, error) {
 	// Parse JSON to struct
 	var statusMapping status17JsonMapping
 	if err := json.NewDecoder(reader).Decode(&statusMapping); err != nil {
