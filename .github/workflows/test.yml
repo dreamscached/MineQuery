@@ -1,0 +1,61 @@
+name: "Test"
+
+on:
+  push: ~
+
+jobs:
+  test:
+    name: "Run tests"
+    runs-on: "ubuntu-latest"
+
+    env:
+      HOST: "127.0.0.1"
+      PORT: "25565"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      - name: "Test on 1.0.0 Minecraft server"
+        run: |
+          mkdir server_100
+          cd server_100
+          curl https://files.betacraft.uk/server-archive/release/1.0/1.0.0.jar > server.jar
+          java -Xmx512M -jar server.jar &
+          cd ..
+          sleep 10
+          go test github.com/alteamc/minequery -run TestPingBeta18
+          killall -9 java
+
+      - name: "Test on 1.4.2 Minecraft server"
+        run: |
+          mkdir server_142
+          cd server_142
+          curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server.jar
+          java -Xmx512M -jar server.jar &
+          cd ..
+          sleep 10
+          go test github.com/alteamc/minequery -run TestPing14
+          killall -9 java
+
+      - name: "Test on 1.6.1 Minecraft server"
+        run: |
+          mkdir server_161
+          cd server_161
+          curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server.jar
+          java -Xmx512M -jar server.jar &
+          cd ..
+          sleep 10
+          go test github.com/alteamc/minequery -run TestPing16
+          killall -9 java
+
+      - name: "Test on 1.7.2 Minecraft server"
+        run: |
+          mkdir server_172
+          cd server_172
+          curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server.jar
+          java -Xmx512M -jar server.jar &
+          cd ..
+          sleep 10
+          go test github.com/alteamc/minequery -run TestPing17
+          killall -9 java
