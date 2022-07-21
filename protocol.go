@@ -39,14 +39,6 @@ func writeBuffer(writer io.Writer, buffer *bytes.Buffer) error {
 	return err
 }
 
-func readNBytes(reader io.Reader, n int) ([]byte, error) {
-	byteArr := make([]byte, n)
-	if _, err := reader.Read(byteArr); err != nil {
-		return nil, err
-	}
-	return byteArr, nil
-}
-
 func writeByte(writer io.Writer, c byte) error {
 	_, err := writer.Write([]byte{c})
 	return err
