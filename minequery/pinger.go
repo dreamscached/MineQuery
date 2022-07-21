@@ -20,17 +20,17 @@ func WithUseStrict(useStrict bool) PingerOption {
 	return func(p *Pinger) { p.UseStrict = useStrict }
 }
 
-// WithProtocol16Version sets Pinger ProtocolVersion16 value.
+// WithProtocolVersion16 sets Pinger ProtocolVersion16 value.
 //goland:noinspection GoUnusedExportedFunction
-func WithProtocol16Version(version byte) PingerOption {
+func WithProtocolVersion16(version byte) PingerOption {
 	return func(p *Pinger) {
 		p.ProtocolVersion16 = version
 	}
 }
 
-// WithProtocol17Version sets Pinger ProtocolVersion17 value.
+// WithProtocolVersion17 sets Pinger ProtocolVersion17 value.
 //goland:noinspection GoUnusedExportedFunction
-func WithProtocol17Version(version int32) PingerOption {
+func WithProtocolVersion17(version int32) PingerOption {
 	return func(p *Pinger) {
 		p.ProtocolVersion17 = version
 	}
