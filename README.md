@@ -78,15 +78,16 @@ See table below for reference (applies both to `ping.LegacyResponse` and `ping.A
 `ping.Response` has been heavily reworked (mostly, due to flattening) with fields renamed,
 nested structs flattened and new fields added. See table below for reference.
 
-| v1 field name      | v2 field name                                                                                                       |
-|--------------------|---------------------------------------------------------------------------------------------------------------------|
-| `Version.Name`     | `VersionName`                                                                                                       |
-| `Version.Protocol` | `ProtocolVersion`                                                                                                   |
-| `Players.Online`   | `OnlinePlayers`                                                                                                     |
-| `Players.Max`      | `MaxPlayers`                                                                                                        |
-| `Players.Sample`   | `SamplePlayers`<br><br>⚠️ **Note!** MineQuery v1 used anonymous struct, v2 uses `PlayerEntry17` named struct.       |
-| `Favicon`          | `Icon`<br><br>⚠️ **Note!** MineQuery v1 did not process icon in any way, v2 decodes it into `image.Image` instance. |
-| *New in v2*        | `PreviewsChat`                                                                                                      |
+| v1 field name      | v2 field name                                                                                                                                                |
+|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Version.Name`     | `VersionName`                                                                                                                                                |
+| `Version.Protocol` | `ProtocolVersion`                                                                                                                                            |
+| `Players.Online`   | `OnlinePlayers`                                                                                                                                              |
+| `Players.Max`      | `MaxPlayers`                                                                                                                                                 |
+| `Description`      | `Description` <br><br>⚠️ **Note!** MineQuery v1 used `ping.Chat` type, v2 uses `minequery.Chat17` type, as well as adds `DescriptionText() string` function. |
+| `Players.Sample`   | `SamplePlayers`<br><br>⚠️ **Note!** MineQuery v1 used anonymous struct, v2 uses `PlayerEntry17` named struct.                                                |
+| `Favicon`          | `Icon`<br><br>⚠️ **Note!** MineQuery v1 did not process icon in any way, v2 decodes it into `image.Image` instance.                                          |
+| *New in v2*        | `PreviewsChat`                                                                                                                                               |
 
 
 [Package renaming]: #package-renaming

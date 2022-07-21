@@ -1631,19 +1631,9 @@ type PlayerEntry17 struct {
 	UUID     uuid.UUID
 }
 
-// Status17 holds status response returned by 1.7+ Minecraft servers.
-type Status17 struct {
-	VersionName     string
-	ProtocolVersion int
-
-	OnlinePlayers int
-	MaxPlayers    int
-	SamplePlayers []PlayerEntry17
-
-	Description  interface{}
-	Icon         image.Image
-	PreviewsChat bool
-}
+// Chat17 holds arbitrary Chat data decoded from JSON. Currently untyped and unmapped to struct,
+// however, this might change in future versions.
+type Chat17 interface{}
 
 type status17JsonMapping struct {
 	Version struct {
@@ -1664,6 +1654,49 @@ type status17JsonMapping struct {
 	Favicon     string      `json:"favicon,omitempty"`
 
 	PreviewsChat bool `json:"previewsChat,omitempty"`
+}
+
+// Status17 holds status response returned by 1.7+ Minecraft servers.
+type Status17 struct {
+	VersionName     string
+	ProtocolVersion int
+
+	OnlinePlayers int
+	MaxPlayers    int
+	SamplePlayers []PlayerEntry17
+
+	Description  Chat17
+	Icon         image.Image
+	PreviewsChat bool
+}
+
+// DescriptionText collects text components of Description together into normal string. Special components
+// such as translate and similar ones are not supported.
+func (s Status17) DescriptionText() string {
+	var componentStack stack
+	var buffer bytes.Buffer
+
+	componentStack.Push(s.Description)
+	for len(componentStack) > 0 {
+		current, _ := componentStack.Pop()
+		switch current.(type) {
+		case string:
+			buffer.WriteString(current.(string))
+		case []interface{}:
+			for i := len(current.([]interface{})) - 1; i >= 0; i-- {
+				componentStack.Push(current.([]interface{})[i])
+			}
+		case map[string]interface{}:
+			if extra, ok := current.(map[string]interface{})["extra"]; ok {
+				componentStack.Push(extra)
+			}
+			if text, ok := current.(map[string]interface{})["text"]; ok {
+				componentStack.Push(text)
+			}
+		}
+	}
+
+	return buffer.String()
 }
 
 // Ping17 pings 1.7+ Minecraft servers.
