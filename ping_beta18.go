@@ -33,10 +33,10 @@ func PingBeta18(host string, port int) (StatusBeta18, error) {
 // also respond to this ping packet.)
 func (p Pinger) PingBeta18(host string, port int) (StatusBeta18, error) {
 	conn, err := p.openTCPConn(host, port)
-	defer func() { _ = conn.Close() }()
 	if err != nil {
 		return StatusBeta18{}, err
 	}
+	defer func() { _ = conn.Close() }()
 
 	// Send ping packet
 	if err = writePingPacketBeta18(conn); err != nil {

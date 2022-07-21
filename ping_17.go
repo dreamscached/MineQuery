@@ -1675,10 +1675,10 @@ func Ping17(host string, port int) (Status17, error) {
 // Ping17 pings 1.7+ Minecraft servers.
 func (p Pinger) Ping17(host string, port int) (Status17, error) {
 	conn, err := p.openTCPConn(host, port)
-	defer func() { _ = conn.Close() }()
 	if err != nil {
 		return Status17{}, err
 	}
+	defer func() { _ = conn.Close() }()
 
 	// Send handshake packet
 	protocolVersion := p.ProtocolVersion17

@@ -33,10 +33,10 @@ func Ping14(host string, port int) (Status14, error) {
 // this ping packet.)
 func (p Pinger) Ping14(host string, port int) (Status14, error) {
 	conn, err := p.openTCPConn(host, port)
-	defer func() { _ = conn.Close() }()
 	if err != nil {
 		return Status14{}, err
 	}
+	defer func() { _ = conn.Close() }()
 
 	// Send ping packet
 	if err = writePingPacket14(conn); err != nil {

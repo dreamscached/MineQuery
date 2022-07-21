@@ -437,10 +437,10 @@ func Ping16(host string, port int) (Status16, error) {
 // to this ping packet.)
 func (p Pinger) Ping16(host string, port int) (Status16, error) {
 	conn, err := p.openTCPConn(host, port)
-	defer func() { _ = conn.Close() }()
 	if err != nil {
 		return Status16{}, err
 	}
+	defer func() { _ = conn.Close() }()
 
 	// Send ping packet
 	protocolVersion := p.ProtocolVersion16
