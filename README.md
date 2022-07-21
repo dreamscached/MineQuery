@@ -59,23 +59,56 @@ all previous version pings (e.g. 1.7+ server will respond to 1.6 ping, and so on
 Here's a quick example how to:
 
 ```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/alteamc/minequery/minequery"
-)
-
-func main() {
-	res, err := minequery.Ping17("localhost", 25565)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(res)
-}
+res, err := minequery.Ping17("localhost", 25565)
+if err != nil { panic(err) }
+fmt.Println(res)
 ```
 
 For full info on response object structure, see [documentation].
 
 [documentation]: https://pkg.go.dev/github.com/alteamc/minequery
+
+
+## Advanced usage
+
+### Pinger
+
+For more advanced usage, such as setting custom timeout or enabling more strict
+response validation, you can use `Pinger` struct with `PingerOption` passed to it:
+
+```go
+pinger := minequery.NewPinger(
+	minequery.WithTimeout(5 * time.Second), 
+	minequery.WithUseStrict(true),
+	minequery.WithProtocolVersion16(minequery.Ping16ProtocolVersion162), 
+	minequery.WithProtocolVersion17(minequery.Ping17ProtocolVersion172),
+)
+```
+
+
+### WithTimeout
+
+By default, `Pinger` has 15-second timeout before connection aborts. If you need
+to customize this duration, you can use `WithTimeout` option.
+
+
+### WithUseStrict
+
+By default, `Pinger` does not validate response data it receives and silently
+omits erroneous values it processes (incorrect favicon or bad player UUID).
+If you need it to return an error in case of invalid response, you can use 
+`WithUseStrict` option.
+
+
+### WithProtocolVersion16
+
+By default, `Pinger` sends protocol version 74 in 1.6 ping packets. If you need
+to customize protocol version sent, use `WithProtocolVersion16`. MineQuery provides
+a convenient set of constants you can use &mdash; see `Ping16ProtocolVersion*` constants.
+
+
+### WithProtocolVersion17
+
+By default, `Pinger` sends protocol version -1 in 1.7 ping packets. If you need
+to customize protocol version sent, use `WithProtocolVersion17`. MineQuery provides
+a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` constants.
