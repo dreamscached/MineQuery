@@ -85,6 +85,21 @@ pinger := minequery.NewPinger(
 )
 ```
 
+Then, use `Ping*` functions on it the same way as described in [Basic usage] section:
+
+```go
+// Ping Beta 1.8+
+pinger.PingBeta18("localhost", 25565)
+// Ping 1.4+
+pinger.Ping14("localhost", 25565)
+// Ping 1.6+
+pinger.Ping16("localhost", 25565)
+// Ping 1.7+
+pinger.Ping17("localhost", 25565)
+```
+
+[Basic usage]: #basic-usage
+
 
 ### WithTimeout
 
