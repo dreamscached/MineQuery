@@ -1650,8 +1650,8 @@ type status17JsonMapping struct {
 		} `json:"sample"`
 	} `json:"players"`
 
-	Description interface{} `json:"description"`
-	Favicon     string      `json:"favicon,omitempty"`
+	Description Chat17 `json:"description"`
+	Favicon     string `json:"favicon,omitempty"`
 
 	PreviewsChat bool `json:"previewsChat,omitempty"`
 }
