@@ -18,7 +18,7 @@
     </a>
     <br/>
     <a href="https://github.com/alteamc/minequery#readme">
-        <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.3%20to%201.3%20%7C%201.4%20%7C%201.5%20to%201.6%20%7C%201.7%2B-brightgreen">
+        <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.8%20to%201.3%20%7C%201.4%20%7C%201.5%20to%201.6%20%7C%201.7%2B-brightgreen">
     </a>
     <a href="https://discord.gg/9ruheUG3Wg">
         <img alt="Discord server badge" src="https://discordapp.com/api/guilds/929337829610369095/widget.png?style=shield">
