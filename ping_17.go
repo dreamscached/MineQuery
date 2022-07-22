@@ -1676,20 +1676,34 @@ func (s Status17) DescriptionText() string {
 	var componentStack stack
 	var buffer bytes.Buffer
 
+	// Push root component to stack, whatever it is (a slice, a map or a string)
 	componentStack.Push(s.Description)
+
 	for len(componentStack) > 0 {
+		// Remove topmost element from stack and get it for processing
 		current, _ := componentStack.Pop()
+
 		switch current.(type) {
 		case string:
+			// If component is a string, just write it to a buffer
 			buffer.WriteString(current.(string))
+
 		case []interface{}:
+			// If component is a slice, push its items to stack in reverse order
+			// (so that they are processed in natural order because stack is LIFO)
 			for i := len(current.([]interface{})) - 1; i >= 0; i-- {
 				componentStack.Push(current.([]interface{})[i])
 			}
+
 		case map[string]interface{}:
+			// If component is an object (here it's a map), process text first, then extra
+			// Push subcomponents to stack first (if there are any), text will go on top of
+			// stack as it must be processed first.
 			if extra, ok := current.(map[string]interface{})["extra"]; ok {
 				componentStack.Push(extra)
 			}
+
+			// Push text to stack (if there is any)
 			if text, ok := current.(map[string]interface{})["text"]; ok {
 				componentStack.Push(text)
 			}
