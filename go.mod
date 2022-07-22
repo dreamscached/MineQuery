@@ -1,4 +1,4 @@
-module github.com/alteamc/minequery
+module github.com/alteamc/minequery/v2
 
 go 1.13
 

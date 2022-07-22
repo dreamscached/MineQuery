@@ -38,7 +38,7 @@ jobs:
           java -Xmx512M -jar server.jar &
           cd ..
           sleep 10
-          go test github.com/alteamc/minequery -run TestPingBeta18
+          go test github.com/alteamc/minequery/v2 -run TestPingBeta18
           killall -9 java
 
       - name: "Test on 1.4.2 Minecraft server"
@@ -47,7 +47,7 @@ jobs:
           java -Xmx512M -jar server.jar &
           cd ..
           sleep 10
-          go test github.com/alteamc/minequery -run TestPing14
+          go test github.com/alteamc/minequery/v2 -run TestPing14
           killall -9 java
 
       - name: "Test on 1.6.1 Minecraft server"
@@ -56,7 +56,7 @@ jobs:
           java -Xmx512M -jar server.jar &
           cd ..
           sleep 10
-          go test github.com/alteamc/minequery -run TestPing16
+          go test github.com/alteamc/minequery/v2 -run TestPing16
           killall -9 java
 
       - name: "Test on 1.7.2 Minecraft server"
@@ -65,5 +65,5 @@ jobs:
           java -Xmx512M -jar server.jar &
           cd ..
           sleep 10
-          go test github.com/alteamc/minequery -run TestPing17
+          go test github.com/alteamc/minequery/v2 -run TestPing17
           killall -9 java

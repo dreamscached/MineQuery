@@ -34,12 +34,12 @@ will help you migrate your existing codebase to v2.
 
 ## Package renaming
 
-MineQuery v2 has its package named `minequery` instead of `ping`. Import path has
+MineQuery v2 has its package named `minequery/v2` instead of `ping`. Import path has
 also changed:
 
-| v1 import                                    | v2 import                               |
-|----------------------------------------------|-----------------------------------------|
-| `import "github.com/alteamc/minequery/ping"` | `import "github.com/alteamc/minequery"` |
+| v1 import                                    | v2 import                                  |
+|----------------------------------------------|--------------------------------------------|
+| `import "github.com/alteamc/minequery/ping"` | `import "github.com/alteamc/minequery/v2"` |
 
 
 ## New ping function signatures
