@@ -10,7 +10,7 @@
     <a href="https://github.com/alteamc/minequery/releases/latest">
         <img alt="Latest release badge" src="https://img.shields.io/github/v/release/alteamc/minequery">
     </a>
-    <a href="https://pkg.go.dev/github.com/alteamc/minequery">
+    <a href="https://pkg.go.dev/github.com/alteamc/minequery/v2">
         <img alt="Go reference badge" src="https://pkg.go.dev/badge/github.com/alteamc/minequery.svg">
     </a>
     <a href="https://github.com/alteamc/minequery/blob/v2/LICENSE">
