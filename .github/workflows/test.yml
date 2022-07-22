@@ -1,7 +1,10 @@
 name: "Test"
 
 on:
-  push: ~
+  push:
+    paths:
+      - "**.go"
+      - ".github/workflows/*.yml"
 
 jobs:
   test:
