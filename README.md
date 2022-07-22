@@ -4,7 +4,7 @@
     <a href="https://github.com/alteamc/minequery/actions/workflows/test.yml">
         <img alt="Test workflow badge" src="https://github.com/alteamc/minequery/actions/workflows/test.yml/badge.svg?branch=v2">
     </a>
-    <a href="https://github.com/alteamc/minequery/blob/master/go.mod">
+    <a href="https://github.com/alteamc/minequery/blob/v2/go.mod">
         <img alt="Go version badge" src="https://img.shields.io/github/go-mod/go-version/alteamc/minequery">
     </a>
     <a href="https://github.com/alteamc/minequery/releases/latest">
@@ -13,7 +13,7 @@
     <a href="https://pkg.go.dev/github.com/alteamc/minequery">
         <img alt="Go reference badge" src="https://pkg.go.dev/badge/github.com/alteamc/minequery.svg">
     </a>
-    <a href="https://github.com/alteamc/minequery/blob/master/LICENSE">
+    <a href="https://github.com/alteamc/minequery/blob/v2/LICENSE">
         <img alt="License badge" src="https://img.shields.io/github/license/alteamc/minequery">
     </a>
     <br/>
