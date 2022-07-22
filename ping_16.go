@@ -503,7 +503,7 @@ func writePingPacket16(writer io.Writer, protocol byte, host string, port int) e
 // Response processing
 
 func parseResponseData16(reader io.Reader, useStrict bool) (Status16, error) {
-	data, err := ReadAll(reader)
+	data, err := readAll(reader)
 	if err != nil {
 		return Status16{}, err
 	}
