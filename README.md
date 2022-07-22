@@ -1,6 +1,9 @@
 <h1 align="center">📡 MineQuery</h1>
 <h4 align="center">Minecraft Server List Ping library written in Go</h4>
 <p align="center">
+    <a href="https://github.com/alteamc/minequery/actions/workflows/test.yml">
+        <img alt="Test workflow badge" src="https://github.com/alteamc/minequery/actions/workflows/test.yml/badge.svg?branch=v2">
+    </a>
     <a href="https://github.com/alteamc/minequery/blob/master/go.mod">
         <img alt="Go version badge" src="https://img.shields.io/github/go-mod/go-version/alteamc/minequery">
     </a>
@@ -13,12 +16,12 @@
     <a href="https://github.com/alteamc/minequery/blob/master/LICENSE">
         <img alt="License badge" src="https://img.shields.io/github/license/alteamc/minequery">
     </a>
-    <a href="https://discord.gg/9ruheUG3Wg">
-        <img alt="Discord server badge" src="https://discordapp.com/api/guilds/929337829610369095/widget.png?style=shield">
-    </a>
     <br/>
     <a href="https://github.com/alteamc/minequery#readme">
         <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.3%20to%201.3%20%7C%201.4%20%7C%201.5%20to%201.6%20%7C%201.7%2B-brightgreen">
+    </a>
+    <a href="https://discord.gg/9ruheUG3Wg">
+        <img alt="Discord server badge" src="https://discordapp.com/api/guilds/929337829610369095/widget.png?style=shield">
     </a>
 </p>
 
