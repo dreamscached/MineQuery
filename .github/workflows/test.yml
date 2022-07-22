@@ -35,6 +35,7 @@ jobs:
       - name: "Test on 1.0.0 Minecraft server"
         run: |
           cd server_100
+          echo level-seed=random-seed-that-is-guaranteed-not-to-crash-server > server.properties
           java -Xmx512M -jar server.jar &
           cd ..
           sleep 10
