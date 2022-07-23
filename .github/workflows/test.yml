@@ -20,11 +20,11 @@ jobs:
         uses: "actions/checkout@v3"
 
       - name: "Pull Minecraft server cache"
-        id: "mc-server-v101-cache"
+        id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
           path: "server_101"
-          key: "mc-server-cache"
+          key: "mc-server-v101-cache"
 
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
@@ -58,11 +58,11 @@ jobs:
         uses: "actions/checkout@v3"
 
       - name: "Pull Minecraft server cache"
-        id: "mc-server-v142-cache"
+        id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
           path: "server_142"
-          key: "mc-server-cache"
+          key: "mc-server-v142-cache"
 
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
@@ -92,11 +92,11 @@ jobs:
         uses: "actions/checkout@v3"
 
       - name: "Pull Minecraft server cache"
-        id: "mc-server-v161-cache"
+        id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
           path: "server_161"
-          key: "mc-server-cache"
+          key: "mc-server-v161-cache"
 
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
@@ -126,11 +126,11 @@ jobs:
         uses: "actions/checkout@v3"
 
       - name: "Pull Minecraft server cache"
-        id: "mc-server-v172-cache"
+        id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
           path: "server_172"
-          key: "mc-server-cache"
+          key: "mc-server-v172-cache"
 
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
