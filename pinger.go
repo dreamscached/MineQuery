@@ -11,7 +11,10 @@ type PingerOption func(*Pinger)
 // WithTimeout sets Pinger Dialer timeout to the provided value.
 //goland:noinspection GoUnusedExportedFunction
 func WithTimeout(timeout time.Duration) PingerOption {
-	return func(p *Pinger) { p.Timeout = timeout }
+	return func(p *Pinger) {
+		p.Timeout = timeout
+		p.Dialer.Timeout = timeout
+	}
 }
 
 // WithUseStrict sets Pinger UseStrict to the provided value.

@@ -1,15 +1,19 @@
 package minequery
 
 import (
-	"errors"
 	"os"
 	"strconv"
+)
+
+const (
+	defaultHostname = "localhost"
+	defaultPort     = 25565
 )
 
 func Hostname() string {
 	host, ok := os.LookupEnv("HOST")
 	if !ok {
-		panic(errors.New("expected to get hostname from HOST variable"))
+		return defaultHostname
 	}
 	return host
 }
@@ -17,7 +21,7 @@ func Hostname() string {
 func Port() int {
 	portStr, ok := os.LookupEnv("PORT")
 	if !ok {
-		panic(errors.New("expected to get port from PORT variable"))
+		return defaultPort
 	}
 	port, err := strconv.ParseInt(portStr, 10, 16)
 	if err != nil {

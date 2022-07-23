@@ -1650,8 +1650,8 @@ type status17JsonMapping struct {
 		} `json:"sample"`
 	} `json:"players"`
 
-	Description interface{} `json:"description"`
-	Favicon     string      `json:"favicon,omitempty"`
+	Description Chat17 `json:"description"`
+	Favicon     string `json:"favicon,omitempty"`
 
 	PreviewsChat bool `json:"previewsChat,omitempty"`
 }
@@ -1670,28 +1670,48 @@ type Status17 struct {
 	PreviewsChat bool
 }
 
-// DescriptionText collects text components of Description together into normal string. Special components
-// such as translate and similar ones are not supported.
+// DescriptionText collects text components of Description together into normal string.
 func (s Status17) DescriptionText() string {
 	var componentStack stack
 	var buffer bytes.Buffer
 
+	// Push root component to stack, whatever it is (a slice, a map or a string)
 	componentStack.Push(s.Description)
+
 	for len(componentStack) > 0 {
+		// Remove topmost element from stack and get it for processing
 		current, _ := componentStack.Pop()
+
 		switch current.(type) {
 		case string:
+			// If component is a string, just write it to a buffer
 			buffer.WriteString(current.(string))
+
 		case []interface{}:
+			// If component is a slice, push its items to stack in reverse order
+			// (so that they are processed in natural order because stack is LIFO)
 			for i := len(current.([]interface{})) - 1; i >= 0; i-- {
 				componentStack.Push(current.([]interface{})[i])
 			}
+
 		case map[string]interface{}:
-			if extra, ok := current.(map[string]interface{})["extra"]; ok {
+			// If component is an object, first its text/translate properties are handled;
+			// subcomponents (aka extra) are processed last and are appended in the end of the string.
+			current := current.(map[string]interface{})
+
+			// Push extra to stack (if there is any) first as it must be processed last (stack is LIFO)
+			if extra, ok := current["extra"]; ok {
 				componentStack.Push(extra)
 			}
-			if text, ok := current.(map[string]interface{})["text"]; ok {
+
+			// Push component text to stack (if there is any)
+			if text, ok := current["text"]; ok {
 				componentStack.Push(text)
+			} else if translate, ok := current["translate"]; ok{
+				// If component did not contain text property, look for translate property
+				// and write translate string as is, without applying "with" components or actually trying to
+				// translate anything.
+				componentStack.Push(translate)
 			}
 		}
 	}

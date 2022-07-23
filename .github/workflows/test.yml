@@ -7,8 +7,8 @@ on:
       - ".github/workflows/*.yml"
 
 jobs:
-  test:
-    name: "Run tests"
+  check_101:
+    name: "Test on Minecraft 1.0.1"
     runs-on: "ubuntu-latest"
 
     env:
@@ -19,54 +19,146 @@ jobs:
       - name: "Checkout"
         uses: "actions/checkout@v3"
 
-      - name: "Pull Minecraft servers cache"
+      - name: "Pull Minecraft server cache"
         id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
-          path: "server_*"
-          key: "mc-server-cache"
+          path: "server_101"
+          key: "mc-server-v101-cache"
 
-      - name: "Download Minecraft servers"
+      - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir server_101 server_142 server_161 server_172
+          mkdir server_101
           curl https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar > server_101/server.jar
+
+      - name: "Run test server and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_101
+            java -Xmx512M -jar server.jar &
+            cd ..
+            sleep 10
+            go test github.com/alteamc/minequery/v2 -run TestPingBeta18
+          on_retry_command: killall -9 java
+
+  check_142:
+    name: "Test on Minecraft 1.4.2"
+    runs-on: "ubuntu-latest"
+
+    env:
+      HOST: "127.0.0.1"
+      PORT: "25565"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      - name: "Pull Minecraft server cache"
+        id: "mc-server-cache"
+        uses: "actions/cache@v3"
+        with:
+          path: "server_142"
+          key: "mc-server-v142-cache"
+
+      - name: "Download Minecraft server"
+        if: "!steps.mc-server-cache.outputs.cache-hit"
+        run: |
+          mkdir server_142
           curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/server.jar
+
+      - name: "Run test server and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_142
+            java -Xmx512M -jar server.jar &
+            cd ..
+            sleep 10
+            go test github.com/alteamc/minequery/v2 -run TestPing14
+          on_retry_command: killall -9 java
+
+  check_161:
+    name: "Test on Minecraft 1.6.1"
+    runs-on: "ubuntu-latest"
+
+    env:
+      HOST: "127.0.0.1"
+      PORT: "25565"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      - name: "Pull Minecraft server cache"
+        id: "mc-server-cache"
+        uses: "actions/cache@v3"
+        with:
+          path: "server_161"
+          key: "mc-server-v161-cache"
+
+      - name: "Download Minecraft server"
+        if: "!steps.mc-server-cache.outputs.cache-hit"
+        run: |
+          mkdir server_161
           curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server_161/server.jar
+
+      - name: "Run test server and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_161
+            java -Xmx512M -jar server.jar &
+            cd ..
+            sleep 10
+            go test github.com/alteamc/minequery/v2 -run TestPing16
+          on_retry_command: killall -9 java
+
+  check_172:
+    name: "Test on Minecraft 1.7.2"
+    runs-on: "ubuntu-latest"
+
+    env:
+      HOST: "127.0.0.1"
+      PORT: "25565"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      - name: "Pull Minecraft server cache"
+        id: "mc-server-cache"
+        uses: "actions/cache@v3"
+        with:
+          path: "server_172"
+          key: "mc-server-v172-cache"
+
+      - name: "Download Minecraft server"
+        if: "!steps.mc-server-cache.outputs.cache-hit"
+        run: |
+          mkdir server_172
           curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/server.jar
 
-      - name: "Test on 1.0.1 Minecraft server"
-        run: |
-          cd server_101
-          java -Xmx512M -jar server.jar &
-          cd ..
-          sleep 10
-          go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          killall -9 java
-
-      - name: "Test on 1.4.2 Minecraft server"
-        run: |
-          cd server_142
-          java -Xmx512M -jar server.jar &
-          cd ..
-          sleep 10
-          go test github.com/alteamc/minequery/v2 -run TestPing14
-          killall -9 java
-
-      - name: "Test on 1.6.1 Minecraft server"
-        run: |
-          cd server_161
-          java -Xmx512M -jar server.jar &
-          cd ..
-          sleep 10
-          go test github.com/alteamc/minequery/v2 -run TestPing16
-          killall -9 java
-
-      - name: "Test on 1.7.2 Minecraft server"
-        run: |
-          cd server_172
-          java -Xmx512M -jar server.jar &
-          cd ..
-          sleep 10
-          go test github.com/alteamc/minequery/v2 -run TestPing17
-          killall -9 java
+      - name: "Run test server and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_172
+            java -Xmx512M -jar server.jar &
+            cd ..
+            sleep 10
+            go test github.com/alteamc/minequery/v2 -run TestPing17
+          on_retry_command: killall -9 java
