@@ -33,13 +33,17 @@ jobs:
           curl https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar > server_101/server.jar
 
       - name: "Run test server and run tests"
-        run: |
-          cd server_101
-          java -Xmx512M -jar server.jar &
-          cd ..
-          sleep 10
-          go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          killall -9 java
+        uses: "nick-fields/retry@v2"
+        with:
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_101
+            java -Xmx512M -jar server.jar &
+            cd ..
+            sleep 10
+            go test github.com/alteamc/minequery/v2 -run TestPingBeta18
+            killall -9 java
 
   check_142:
     name: "Test Minecraft 1.4.2 pinging"
