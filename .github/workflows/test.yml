@@ -35,6 +35,7 @@ jobs:
       - name: "Run test server and run tests"
         uses: "nick-fields/retry@v2"
         with:
+          timeout_minutes: 1
           max_attempts: 3
           retry_on: error
           command: |
