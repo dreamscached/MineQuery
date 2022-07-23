@@ -1670,8 +1670,7 @@ type Status17 struct {
 	PreviewsChat bool
 }
 
-// DescriptionText collects text components of Description together into normal string. Special components
-// such as translate and similar ones are not supported.
+// DescriptionText collects text components of Description together into normal string.
 func (s Status17) DescriptionText() string {
 	var componentStack stack
 	var buffer bytes.Buffer
@@ -1696,16 +1695,23 @@ func (s Status17) DescriptionText() string {
 			}
 
 		case map[string]interface{}:
-			// If component is an object (here it's a map), process text first, then extra
-			// Push subcomponents to stack first (if there are any), text will go on top of
-			// stack as it must be processed first.
-			if extra, ok := current.(map[string]interface{})["extra"]; ok {
+			// If component is an object, first its text/translate properties are handled;
+			// subcomponents (aka extra) are processed last and are appended in the end of the string.
+			current := current.(map[string]interface{})
+
+			// Push extra to stack (if there is any) first as it must be processed last (stack is LIFO)
+			if extra, ok := current["extra"]; ok {
 				componentStack.Push(extra)
 			}
 
-			// Push text to stack (if there is any)
-			if text, ok := current.(map[string]interface{})["text"]; ok {
+			// Push component text to stack (if there is any)
+			if text, ok := current["text"]; ok {
 				componentStack.Push(text)
+			} else if translate, ok := current["translate"]; ok{
+				// If component did not contain text property, look for translate property
+				// and write translate string as is, without applying "with" components or actually trying to
+				// translate anything.
+				componentStack.Push(translate)
 			}
 		}
 	}
