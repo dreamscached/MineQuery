@@ -8,6 +8,14 @@ import (
 // PingerOption is a configuring function that applies certain changes to Pinger.
 type PingerOption func(*Pinger)
 
+// WithDialer sets Pinger Dialer used on Ping* function calls.
+//goland:noinspection GoUnusedExportedFunction
+func WithDialer(dialer net.Dialer) PingerOption {
+	return func(p *Pinger) {
+		p.Dialer = dialer
+	}
+}
+
 // WithTimeout sets Pinger Dialer timeout to the provided value.
 //goland:noinspection GoUnusedExportedFunction
 func WithTimeout(timeout time.Duration) PingerOption {

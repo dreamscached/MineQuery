@@ -2,7 +2,7 @@
 <h4 align="center">Minecraft Server List Ping library written in Go</h4>
 <p align="center">
     <a href="https://github.com/alteamc/minequery/actions/workflows/test.yml">
-        <img alt="Test workflow badge" src="https://github.com/alteamc/minequery/actions/workflows/test.yml/badge.svg?branch=v2">
+        <img alt="Test workflow badge" src="https://img.shields.io/github/workflow/status/alteamc/minequery/Test/v2?label=Test&logo=github">
     </a>
     <a href="https://github.com/alteamc/minequery/blob/v2/go.mod">
         <img alt="Go version badge" src="https://img.shields.io/github/go-mod/go-version/alteamc/minequery">
