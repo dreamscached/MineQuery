@@ -1,8 +1,5 @@
 # 🚀 Migrating from v1
 
-If you're new to MineQuery, you can [skip this section]. If you have used it before, you
-might want to look into it if you're planning to switch from v1.
-
 Version 2 of MineQuery has several breaking changes from version 1. This section
 will help you migrate your existing codebase to v2.
 
