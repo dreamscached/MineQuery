@@ -23,46 +23,57 @@ jobs:
             version: "101"
             type: "vanilla"
             tests: "Beta18"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.0.0-SNAPSHOT.jar"
             version: "101"
             type: "craftbukkit"
             tests: "Beta18"
+            timeout: 20
           - url: "https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar"
             version: "142"
             type: "vanilla"
             tests: "14"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar"
             version: "147"
             type: "craftbukkit"
             tests: "14"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/spigot/spigot-1.4.7-R1.1-SNAPSHOT.jar"
             version: "147"
             type: "craftbukkit"
             tests: "14"
+            timeout: 20
           - url: "https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar"
             version: "161"
             type: "vanilla"
             tests: "16"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar"
             version: "161"
             type: "craftbukkit"
             tests: "16"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/spigot/spigot-1.6.2-R1.1-SNAPSHOT.jar"
             version: "162"
             type: "spigot"
             tests: "16"
+            timeout: 20
           - url: "https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar"
             version: "172"
             type: "vanilla"
             tests: "16"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar"
             version: "172"
             type: "craftbukkit"
             tests: "17"
+            timeout: 20
           - url: "https://cdn.getbukkit.org/spigot/spigot-1.7.2-R0.4-SNAPSHOT-1339.jar"
             version: "172"
             type: "spigot"
             tests: "17"
+            timeout: 20
 
     steps:
       - name: "Checkout"
@@ -91,6 +102,6 @@ jobs:
             java ${{ env.JVM_ARGS }} -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
-            sleep 10
+            sleep ${{ matrix.server.timeout }}
             go test github.com/alteamc/minequery/v2 -run ${{ matrix.server.tests }}
           on_retry_command: rm -rf server_${{ matrix.server.version }}/${{ matrix.server.type }}/world*
