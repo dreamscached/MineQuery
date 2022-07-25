@@ -59,7 +59,7 @@ jobs:
             version: "172"
             type: "craftbukkit"
             tests: "17"
-          - url: "https://cdn.getbukkit.org/spigot/spigot-1.7.2-R0.4-SNAPSHOT-1339.ja"
+          - url: "https://cdn.getbukkit.org/spigot/spigot-1.7.2-R0.4-SNAPSHOT-1339.jar"
             version: "172"
             type: "spigot"
             tests: "17"
@@ -82,7 +82,7 @@ jobs:
         uses: "nick-fields/retry@v2"
         with:
           timeout_minutes: 1
-          max_attempts: 3
+          max_attempts: 5
           retry_on: error
           command: |
             cd server_${{ matrix.server.version }}/${{ matrix.server.type }}
