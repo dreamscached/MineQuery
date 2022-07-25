@@ -85,9 +85,9 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir -p server_142/vanilla server147/craftbukkit
+          mkdir -p server_142/vanilla server_147/craftbukkit
           curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server147/craftbukkit/server
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server_147/craftbukkit/server
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
@@ -165,7 +165,7 @@ jobs:
           retry_on: error
           command: |
             cd server_161/craftbukkit
-            java -Xmx512M -jar server.jar &
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
             sleep 10
