@@ -8,14 +8,6 @@ on:
 
 jobs:
   ping:
-    name: "Run Ping* tests"
-    runs-on: "ubuntu-latest"
-
-    env:
-      HOST: "127.0.0.1"
-      PORT: "25565"
-      JVM_ARGS: "-Xmx512M"
-
     strategy:
       matrix:
         server:
@@ -74,6 +66,14 @@ jobs:
             type: "spigot"
             tests: "17"
             timeout: 20
+
+    name: "Run TestPing${{ matrix.server.version }} tests"
+    runs-on: "ubuntu-latest"
+
+    env:
+      HOST: "127.0.0.1"
+      PORT: "25565"
+      JVM_ARGS: "-Xmx512M"
 
     steps:
       - name: "Checkout"
