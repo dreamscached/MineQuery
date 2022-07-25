@@ -87,9 +87,10 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir -p server_142/vanilla server_147/craftbukkit
+          mkdir -p server_142/vanilla server_147/{craftbukkit,spigot}
           curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/vanilla/server.jar
           curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server_147/craftbukkit/server.jar
+          curl https://cdn.getbukkit.org/spigot/spigot-1.4.7-R1.1-SNAPSHOT.jar > server_147/spigot/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
@@ -119,6 +120,20 @@ jobs:
             sleep 20
             go test github.com/alteamc/minequery/v2 -run TestPing14
 
+      - name: "Run test server (Spigot) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_147/spigot
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing14
+
   check_161:
     name: "Test on Minecraft 1.6.1"
     runs-on: "ubuntu-latest"
@@ -141,9 +156,10 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir -p server_161/{vanilla,craftbukkit}
+          mkdir -p server_161/{vanilla,craftbukkit} server_162/spigot
           curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server_161/vanilla/server.jar
           curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar > server_161/craftbukkit/server.jar
+          curl https://cdn.getbukkit.org/spigot/spigot-1.6.2-R1.1-SNAPSHOT.jar > server_162/spigot/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
@@ -173,6 +189,20 @@ jobs:
             sleep 20
             go test github.com/alteamc/minequery/v2 -run TestPing16
 
+      - name: "Run test server (Spigot) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_162/spigot
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing16
+
   check_172:
     name: "Test on Minecraft 1.7.2"
     runs-on: "ubuntu-latest"
@@ -195,9 +225,10 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir -p server_172/{vanilla,craftbukkit}
+          mkdir -p server_172/{vanilla,craftbukkit,spigot}
           curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/vanilla/server.jar
           curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar > server_172/craftbukkit/server.jar
+          curl https://cdn.getbukkit.org/spigot/spigot-1.7.2-R0.4-SNAPSHOT-1339.jar > server_172/spigot/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
@@ -221,6 +252,20 @@ jobs:
           retry_on: error
           command: |
             cd server_172/craftbukkit
+            java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing17
+
+      - name: "Run test server (Spigot) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_172/spigot
             java -Xmx512M -jar server.jar &
             trap "killall -9 java" EXIT
             cd ../..
