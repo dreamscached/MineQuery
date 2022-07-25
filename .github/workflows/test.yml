@@ -152,7 +152,7 @@ jobs:
           command: |
             cd server_161/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing16
           on_retry_command: killall -9 java
@@ -166,7 +166,7 @@ jobs:
           command: |
             cd server_161/craftbukkit
             java -Xmx512M -jar server.jar &
-            cd ..
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing16
           on_retry_command: killall -9 java
@@ -194,7 +194,7 @@ jobs:
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
           mkdir -p server_172/{vanilla,craftbukkit}
-          curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/server.jar
+          curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/vanilla/server.jar
           Curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar > server172/craftbukkit/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
@@ -206,7 +206,7 @@ jobs:
           command: |
             cd server_172/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing17
           on_retry_command: killall -9 java
@@ -220,7 +220,7 @@ jobs:
           command: |
             cd server_172/craftbukkit
             java -Xmx512M -jar server.jar &
-            cd ..
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing17
           on_retry_command: killall -9 java
