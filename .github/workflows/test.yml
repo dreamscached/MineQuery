@@ -67,7 +67,7 @@ jobs:
             tests: "17"
             timeout: 20
 
-    name: "Run TestPing${{ matrix.server.version }} tests"
+    name: "Run TestPing${{ matrix.server.version }} test"
     runs-on: "ubuntu-latest"
 
     env:
