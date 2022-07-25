@@ -1,55 +1,40 @@
 package minequery
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestPingBeta18(t *testing.T) {
-	if err := pingBeta18WithDefaultPinger(); err != nil {
-		t.Errorf("default pinger test failed: %s", err)
+	testPingBeta18WithDefaultPinger(t)
+	testPingBeta18WithNewPinger(t)
+}
+
+func testPingBeta18WithDefaultConfig(t *testing.T, status StatusBeta18) {
+	if status.MOTD != "A Minecraft Server" {
+		t.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", status.MOTD)
 	}
-	if err := pingBeta18WithNewPinger(); err != nil {
-		t.Errorf("new pinger test failed: %s", err)
+	if status.OnlinePlayers != 0 {
+		t.Errorf("expected OnlinePlayers = %#v, got %#v", 0, status.MOTD)
+	}
+	if status.MaxPlayers != 20 {
+		t.Errorf("expected MaxPlayers = %#v, got %#v", 20, status.MOTD)
 	}
 }
 
-func pingBeta18WithDefaultPinger() error {
+func testPingBeta18WithDefaultPinger(t *testing.T) {
 	res, err := PingBeta18(Hostname(), Port())
 	if err != nil {
-		return err
+		t.Errorf("default pinger test failed: %s", err)
+		return
 	}
-
-	if res.MOTD != "A Minecraft Server" {
-		return fmt.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", res.MOTD)
-	}
-	if res.OnlinePlayers != 0 {
-		return fmt.Errorf("expected OnlinePlayers = %#v, got %#v", 0, res.MOTD)
-	}
-	if res.MaxPlayers != 20 {
-		return fmt.Errorf("expected MaxPlayers = %#v, got %#v", 20, res.MOTD)
-	}
-
-	return nil
+	testPingBeta18WithDefaultConfig(t, res)
 }
 
-func pingBeta18WithNewPinger() error {
-	p := NewPinger()
-
-	res, err := p.PingBeta18(Hostname(), Port())
+func testPingBeta18WithNewPinger(t *testing.T) {
+	res, err := NewPinger().PingBeta18(Hostname(), Port())
 	if err != nil {
-		return err
+		t.Errorf("new pinger test failed: %s", err)
+		return
 	}
-
-	if res.MOTD != "A Minecraft Server" {
-		return fmt.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", res.MOTD)
-	}
-	if res.OnlinePlayers != 0 {
-		return fmt.Errorf("expected OnlinePlayers = %#v, got %#v", 0, res.MOTD)
-	}
-	if res.MaxPlayers != 20 {
-		return fmt.Errorf("expected MaxPlayers = %#v, got %#v", 20, res.MOTD)
-	}
-
-	return nil
+	testPingBeta18WithDefaultConfig(t, res)
 }

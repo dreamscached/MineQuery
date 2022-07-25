@@ -1,61 +1,40 @@
 package minequery
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestPing16(t *testing.T) {
-	if err := ping16WithDefaultPinger(); err != nil {
-		t.Errorf("default pinger test failed: %s", err)
+	ping16WithDefaultPinger(t)
+	ping16WithNewPinger(t)
+}
+
+func testPing16WithDefaultConfig(t *testing.T, status Status16) {
+	if status.MOTD != "A Minecraft Server" {
+		t.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", status.MOTD)
 	}
-	if err := ping16WithNewPinger(); err != nil {
-		t.Errorf("new pinger test failed: %s", err)
+	if status.OnlinePlayers != 0 {
+		t.Errorf("expected OnlinePlayers = %#v, got %#v", 0, status.MOTD)
+	}
+	if status.MaxPlayers != 20 {
+		t.Errorf("expected MaxPlayers = %#v, got %#v", 20, status.MOTD)
 	}
 }
 
-func ping16WithDefaultPinger() error {
+func ping16WithDefaultPinger(t *testing.T) {
 	res, err := Ping16(Hostname(), Port())
 	if err != nil {
-		return err
+		t.Errorf("default pinger test failed: %s", err)
+		return
 	}
-
-	if res.MOTD != "A Minecraft Server" {
-		return fmt.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", res.MOTD)
-	}
-	if res.OnlinePlayers != 0 {
-		return fmt.Errorf("expected OnlinePlayers = %#v, got %#v", 0, res.MOTD)
-	}
-	if res.MaxPlayers != 20 {
-		return fmt.Errorf("expected MaxPlayers = %#v, got %#v", 20, res.MOTD)
-	}
-
-	return nil
+	testPing16WithDefaultConfig(t, res)
 }
 
-func ping16WithNewPinger() error {
-	p := NewPinger()
-
-	res, err := p.Ping16(Hostname(), Port())
+func ping16WithNewPinger(t *testing.T) {
+	res, err := NewPinger().Ping16(Hostname(), Port())
 	if err != nil {
-		return err
+		t.Errorf("new pinger test failed: %s", err)
+		return
 	}
-
-	if res.ProtocolVersion != int(Ping16ProtocolVersion161) {
-		return fmt.Errorf("expected ProtocolVersion = %#v, got %#v", Ping16ProtocolVersion161, res.ProtocolVersion)
-	}
-	if res.ServerVersion != "1.6.1" {
-		return fmt.Errorf("expected ProtocolVersion = %#v, got %#v", Ping16ProtocolVersion161, res.ProtocolVersion)
-	}
-	if res.MOTD != "A Minecraft Server" {
-		return fmt.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", res.MOTD)
-	}
-	if res.OnlinePlayers != 0 {
-		return fmt.Errorf("expected OnlinePlayers = %#v, got %#v", 0, res.MOTD)
-	}
-	if res.MaxPlayers != 20 {
-		return fmt.Errorf("expected MaxPlayers = %#v, got %#v", 20, res.MOTD)
-	}
-
-	return nil
+	testPing16WithDefaultConfig(t, res)
 }
