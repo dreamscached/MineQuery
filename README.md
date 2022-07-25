@@ -79,7 +79,7 @@ fmt.Println(res)
 
 For full info on response object structure, see [documentation].
 
-[documentation]: https://pkg.go.dev/github.com/alteamc/minequery
+[documentation]: https://pkg.go.dev/github.com/alteamc/minequery/v2
 
 
 ## Advanced usage
