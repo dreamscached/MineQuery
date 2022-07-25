@@ -55,7 +55,7 @@ jobs:
           retry_on: error
           command: |
             cd server_101/craftbukkit
-            java -Xmx512M -jar server.jar &
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
             sleep 10
@@ -87,7 +87,7 @@ jobs:
         run: |
           mkdir -p server_142/vanilla server_147/craftbukkit
           curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server_147/craftbukkit/server
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server_147/craftbukkit/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
@@ -111,7 +111,7 @@ jobs:
           retry_on: error
           command: |
             cd server_147/craftbukkit
-            java -Xmx512M -jar server.jar &
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
             sleep 10
@@ -170,7 +170,6 @@ jobs:
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing1
-          on_retry_command: killall -9 java
 
   check_172:
     name: "Test on Minecraft 1.7.2"
