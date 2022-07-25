@@ -29,22 +29,39 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir server_101
-          curl https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar > server_101/server.jar
+          mkdir -p server_101/{vanilla,craftbukkit}
+          curl https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar > server_101/vanilla/server.jar
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.0.0-SNAPSHOT.jar > server_101/craftbukkit/server.jar
 
-      - name: "Run test server and run tests"
+      - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
         with:
           timeout_minutes: 1
           max_attempts: 3
           retry_on: error
           command: |
-            cd server_101
+            cd server_101/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            trap "killall -9 java" EXIT
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          on_retry_command: killall -9 java
+          on_retry_command: rm -rf server_101/vanilla/world*
+
+      - name: "Run test server (CraftBukkit) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_101/craftbukkit
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPingBeta18
+          on_retry_command: rm -rf server_101/craftbukkit/world*
 
   check_142:
     name: "Test on Minecraft 1.4.2"
@@ -62,28 +79,45 @@ jobs:
         id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
-          path: "server_142"
-          key: "mc-server-v142-cache"
+          path: |
+            server_142
+            server_147
+          key: "mc-server-v14-cache"
 
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir server_142
-          curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/server.jar
+          mkdir -p server_142/vanilla server_147/craftbukkit
+          curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/vanilla/server.jar
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server_147/craftbukkit/server.jar
 
-      - name: "Run test server and run tests"
+      - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
         with:
           timeout_minutes: 1
           max_attempts: 3
           retry_on: error
           command: |
-            cd server_142
+            cd server_142/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            trap "killall -9 java" EXIT
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing14
-          on_retry_command: killall -9 java
+
+      - name: "Run test server (CraftBukkit) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_147/craftbukkit
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing14
 
   check_161:
     name: "Test on Minecraft 1.6.1"
@@ -107,22 +141,37 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir server_161
-          curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server_161/server.jar
+          mkdir -p server_161/{vanilla,craftbukkit}
+          curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server_161/vanilla/server.jar
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar > server_161/craftbukkit/server.jar
 
-      - name: "Run test server and run tests"
+      - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
         with:
           timeout_minutes: 1
           max_attempts: 3
           retry_on: error
           command: |
-            cd server_161
+            cd server_161/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            trap "killall -9 java" EXIT
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing16
-          on_retry_command: killall -9 java
+
+      - name: "Run test server (CraftBukkit) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_161/craftbukkit
+            java -Xmx512M -jar server.jar | sed 's/>//g' &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing16
 
   check_172:
     name: "Test on Minecraft 1.7.2"
@@ -146,19 +195,34 @@ jobs:
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir server_172
-          curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/server.jar
+          mkdir -p server_172/{vanilla,craftbukkit}
+          curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/vanilla/server.jar
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar > server_172/craftbukkit/server.jar
 
-      - name: "Run test server and run tests"
+      - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
         with:
           timeout_minutes: 1
           max_attempts: 3
           retry_on: error
           command: |
-            cd server_172
+            cd server_172/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            trap "killall -9 java" EXIT
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing17
-          on_retry_command: killall -9 java
+
+      - name: "Run test server (CraftBukkit) and run tests"
+        uses: "nick-fields/retry@v2"
+        with:
+          timeout_minutes: 1
+          max_attempts: 3
+          retry_on: error
+          command: |
+            cd server_172/craftbukkit
+            java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
+            cd ../..
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing17
