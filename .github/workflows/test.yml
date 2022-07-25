@@ -141,7 +141,7 @@ jobs:
         run: |
           mkdir -p server_161/{vanilla,craftbukkit}
           curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server_161/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar > server161/craftbukkit/server.jar
+          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar > server_161/craftbukkit/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
@@ -195,7 +195,7 @@ jobs:
         run: |
           mkdir -p server_172/{vanilla,craftbukkit}
           curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/vanilla/server.jar
-          Curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar > server172/craftbukkit/server.jar
+          Curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar > server_172/craftbukkit/server.jar
 
       - name: "Run test server (Vanilla) and run tests"
         uses: "nick-fields/retry@v2"
