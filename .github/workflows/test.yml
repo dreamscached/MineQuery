@@ -35,12 +35,12 @@ jobs:
             test: "14"
             delay: 20
             timeout: 120
-          - url: "https://cdn.getbukkit.org/spigot/spigot-1.4.7-R1.1-SNAPSHOT.jar"
-            version: "147"
-            type: "craftbukkit"
-            test: "14"
-            delay: 20
-            timeout: 120
+#          - url: "https://cdn.getbukkit.org/spigot/spigot-1.4.7-R1.1-SNAPSHOT.jar"
+#            version: "147"
+#            type: "spigot"
+#            test: "14"
+#            delay: 20
+#            timeout: 120
           - url: "https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar"
             version: "161"
             type: "vanilla"
