@@ -30,9 +30,9 @@
 If you're new to MineQuery, you can skip this part. If you have used it before, you
 might want to give it a read if you're planning to switch from v1.
 
-See [docs/MIGRATING.md] for help with migrating from MineQuery v1 to v2.
+See [MIGRATING.md] for help with migrating from MineQuery v1 to v2.
 
-[docs/MIGRATING.md]: MIGRATING.md
+[MIGRATING.md]: MIGRATING.md
 
 
 # #️⃣ Minecraft Version Support
