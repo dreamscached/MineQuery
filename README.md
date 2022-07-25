@@ -32,7 +32,7 @@ might want to give it a read if you're planning to switch from v1.
 
 See [docs/MIGRATING.md] for help with migrating from MineQuery v1 to v2.
 
-[docs/MIGRATING.md]: docs/MIGRATING.md
+[docs/MIGRATING.md]: MIGRATING.md
 
 
 # #️⃣ Minecraft Version Support
