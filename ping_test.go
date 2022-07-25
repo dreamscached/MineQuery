@@ -6,8 +6,15 @@ import (
 )
 
 const (
+	serverTypeVanilla     = "vanilla"
+	serverTypeCraftBukkit = "craftbukkit"
+	serverTypeSpigot      = "spigot"
+)
+
+const (
 	defaultHostname = "localhost"
 	defaultPort     = 25565
+	defaultType     = serverTypeVanilla
 )
 
 func Hostname() string {
@@ -28,4 +35,12 @@ func Port() int {
 		panic(err)
 	}
 	return int(port)
+}
+
+func Type() string {
+	_type, ok := os.LookupEnv("TYPE")
+	if !ok {
+		return defaultType
+	}
+	return _type
 }

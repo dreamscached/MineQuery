@@ -80,6 +80,8 @@ jobs:
           curl --fail ${{ matrix.server.url }} -o server_${{ matrix.server.version }}/${{ matrix.server.type }}/server.jar
       - name: "Run test server and run tests"
         uses: "nick-fields/retry@v2"
+        env:
+          TYPE: "${{ matrix.server.type }}"
         with:
           timeout_minutes: 1
           max_attempts: 5
