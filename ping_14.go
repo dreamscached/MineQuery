@@ -50,7 +50,7 @@ func (p Pinger) Ping14(host string, port int) (Status14, error) {
 	}
 
 	// Parse response data from status packet
-	res, err := parseResponseData14(content)
+	res, err := parseResponseData14(content, p.UseStrict)
 	if err != nil {
 		return Status14{}, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
@@ -95,10 +95,29 @@ func readResponsePacket14(reader io.Reader) (io.Reader, error) {
 
 // Response processing
 
-func parseResponseData14(reader io.Reader) (Status14, error) {
+func parseResponseData14(reader io.Reader, useStrict bool) (Status14, error) {
 	data, err := readAll(reader)
 	if err != nil {
 		return Status14{}, err
+	}
+
+	// NOTE: Spigot 1.4 servers reply with 1.6 response format.
+	// See https://github.com/alteamc/minequery/issues/31 for details.
+	// Check if data string begins with '§1\x00' (00 a7 00 31 00 00) and pass processing to 1.6 logic in this case.
+	if bytes.HasPrefix(data, ping16ResponsePrefix) {
+		if useStrict {
+			return Status14{}, fmt.Errorf("%w: server unexpectedly replied with 1.6 response", ErrInvalidStatus)
+		} else {
+			res, err := parseResponseData16(bytes.NewReader(data), useStrict)
+			if err != nil {
+				return Status14{}, fmt.Errorf("could not parse status from response packet: %w", err)
+			}
+			return Status14{
+				MOTD:          res.MOTD,
+				OnlinePlayers: res.OnlinePlayers,
+				MaxPlayers:    res.MaxPlayers,
+			}, nil
+		}
 	}
 
 	// Split status string, parse and map to struct returning errors if conversions fail
