@@ -7,267 +7,88 @@ on:
       - ".github/workflows/*.yml"
 
 jobs:
-  check_101:
-    name: "Test on Minecraft 1.0.1"
+  ping:
+    name: "Run Ping* tests"
     runs-on: "ubuntu-latest"
 
     env:
       HOST: "127.0.0.1"
       PORT: "25565"
+      JVM_ARGS: "-Xmx512M"
+
+    strategy:
+      matrix:
+        server:
+          - url: "https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar"
+            version: "101"
+            type: "vanilla"
+            tests: "Beta18"
+          - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.0.0-SNAPSHOT.jar"
+            version: "101"
+            type: "craftbukkit"
+            tests: "Beta18"
+          - url: "https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar"
+            version: "142"
+            type: "vanilla"
+            tests: "14"
+          - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar"
+            version: "147"
+            type: "craftbukkit"
+            tests: "14"
+          - url: "https://cdn.getbukkit.org/spigot/spigot-1.4.7-R1.1-SNAPSHOT.jar"
+            version: "147"
+            type: "craftbukkit"
+            tests: "14"
+          - url: "https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar"
+            version: "161"
+            type: "vanilla"
+            tests: "16"
+          - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar"
+            version: "161"
+            type: "craftbukkit"
+            tests: "16"
+          - url: "https://cdn.getbukkit.org/spigot/spigot-1.6.2-R1.1-SNAPSHOT.jar"
+            version: "162"
+            type: "spigot"
+            tests: "16"
+          - url: "https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar"
+            version: "172"
+            type: "vanilla"
+            tests: "16"
+          - url: "https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar"
+            version: "172"
+            type: "craftbukkit"
+            tests: "17"
+          - url: "https://cdn.getbukkit.org/spigot/spigot-1.7.2-R0.4-SNAPSHOT-1339.ja"
+            version: "172"
+            type: "spigot"
+            tests: "17"
 
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v3"
-
       - name: "Pull Minecraft server cache"
         id: "mc-server-cache"
         uses: "actions/cache@v3"
         with:
-          path: "server_101"
-          key: "mc-server-v101-cache"
-
+          path: "server_${{ matrix.server.version }}"
+          key: "mc-server-${{ matrix.server.type }}-v${{ matrix.server.version }}-cache"
       - name: "Download Minecraft server"
         if: "!steps.mc-server-cache.outputs.cache-hit"
         run: |
-          mkdir -p server_101/{vanilla,craftbukkit}
-          curl https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar > server_101/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.0.0-SNAPSHOT.jar > server_101/craftbukkit/server.jar
-
-      - name: "Run test server (Vanilla) and run tests"
+          mkdir -p server_${{ matrix.server.version }}/${{ matrix.server.type }}
+          curl --fail ${{ matrix.server.url }} -o server_${{ matrix.server.version }}/${{ matrix.server.type }}/server.jar
+      - name: "Run test server and run tests"
         uses: "nick-fields/retry@v2"
         with:
           timeout_minutes: 1
           max_attempts: 3
           retry_on: error
           command: |
-            cd server_101/vanilla
-            java -Xmx512M -jar server.jar &
+            cd server_${{ matrix.server.version }}/${{ matrix.server.type }}
+            java ${{ env.JVM_ARGS }} -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
             sleep 10
-            go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          on_retry_command: rm -rf server_101/vanilla/world*
-
-      - name: "Run test server (CraftBukkit) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_101/craftbukkit
-            java -Xmx512M -jar server.jar | sed 's/>//g' &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          on_retry_command: rm -rf server_101/craftbukkit/world*
-
-  check_142:
-    name: "Test on Minecraft 1.4.2"
-    runs-on: "ubuntu-latest"
-
-    env:
-      HOST: "127.0.0.1"
-      PORT: "25565"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v3"
-
-      - name: "Pull Minecraft server cache"
-        id: "mc-server-cache"
-        uses: "actions/cache@v3"
-        with:
-          path: |
-            server_142
-            server_147
-          key: "mc-server-v14-cache"
-
-      - name: "Download Minecraft server"
-        if: "!steps.mc-server-cache.outputs.cache-hit"
-        run: |
-          mkdir -p server_142/vanilla server_147/{craftbukkit,spigot}
-          curl https://piston-data.mojang.com/v1/objects/5be700523a729bb78ef99206fb480a63dcd09825/server.jar > server_142/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.4.7-R1.1-SNAPSHOT.jar > server_147/craftbukkit/server.jar
-          curl https://cdn.getbukkit.org/spigot/spigot-1.4.7-R1.1-SNAPSHOT.jar > server_147/spigot/server.jar
-
-      - name: "Run test server (Vanilla) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_142/vanilla
-            java -Xmx512M -jar server.jar &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 10
-            go test github.com/alteamc/minequery/v2 -run TestPing14
-
-      - name: "Run test server (CraftBukkit) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_147/craftbukkit
-            java -Xmx512M -jar server.jar | sed 's/>//g' &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPing14
-
-      - name: "Run test server (Spigot) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_147/spigot
-            java -Xmx512M -jar server.jar | sed 's/>//g' &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPing14
-
-  check_161:
-    name: "Test on Minecraft 1.6.1"
-    runs-on: "ubuntu-latest"
-
-    env:
-      HOST: "127.0.0.1"
-      PORT: "25565"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v3"
-
-      - name: "Pull Minecraft server cache"
-        id: "mc-server-cache"
-        uses: "actions/cache@v3"
-        with:
-          path: "server_161"
-          key: "mc-server-v161-cache"
-
-      - name: "Download Minecraft server"
-        if: "!steps.mc-server-cache.outputs.cache-hit"
-        run: |
-          mkdir -p server_161/{vanilla,craftbukkit} server_162/spigot
-          curl https://piston-data.mojang.com/v1/objects/0252918a5f9d47e3c6eb1dfec02134d1374a89b4/server.jar > server_161/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.6.1-R0.1-SNAPSHOT.jar > server_161/craftbukkit/server.jar
-          curl https://cdn.getbukkit.org/spigot/spigot-1.6.2-R1.1-SNAPSHOT.jar > server_162/spigot/server.jar
-
-      - name: "Run test server (Vanilla) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_161/vanilla
-            java -Xmx512M -jar server.jar &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 10
-            go test github.com/alteamc/minequery/v2 -run TestPing16
-
-      - name: "Run test server (CraftBukkit) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_161/craftbukkit
-            java -Xmx512M -jar server.jar | sed 's/>//g' &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPing16
-
-      - name: "Run test server (Spigot) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_162/spigot
-            java -Xmx512M -jar server.jar | sed 's/>//g' &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPing16
-
-  check_172:
-    name: "Test on Minecraft 1.7.2"
-    runs-on: "ubuntu-latest"
-
-    env:
-      HOST: "127.0.0.1"
-      PORT: "25565"
-
-    steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v3"
-
-      - name: "Pull Minecraft server cache"
-        id: "mc-server-cache"
-        uses: "actions/cache@v3"
-        with:
-          path: "server_172"
-          key: "mc-server-v172-cache"
-
-      - name: "Download Minecraft server"
-        if: "!steps.mc-server-cache.outputs.cache-hit"
-        run: |
-          mkdir -p server_172/{vanilla,craftbukkit,spigot}
-          curl https://piston-data.mojang.com/v1/objects/3716cac82982e7c2eb09f83028b555e9ea606002/server.jar > server_172/vanilla/server.jar
-          curl https://cdn.getbukkit.org/craftbukkit/craftbukkit-1.7.2-R0.4-20140216.012104-3.jar > server_172/craftbukkit/server.jar
-          curl https://cdn.getbukkit.org/spigot/spigot-1.7.2-R0.4-SNAPSHOT-1339.jar > server_172/spigot/server.jar
-
-      - name: "Run test server (Vanilla) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_172/vanilla
-            java -Xmx512M -jar server.jar &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 10
-            go test github.com/alteamc/minequery/v2 -run TestPing17
-
-      - name: "Run test server (CraftBukkit) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_172/craftbukkit
-            java -Xmx512M -jar server.jar &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPing17
-
-      - name: "Run test server (Spigot) and run tests"
-        uses: "nick-fields/retry@v2"
-        with:
-          timeout_minutes: 1
-          max_attempts: 3
-          retry_on: error
-          command: |
-            cd server_172/spigot
-            java -Xmx512M -jar server.jar &
-            trap "killall -9 java" EXIT
-            cd ../..
-            sleep 20
-            go test github.com/alteamc/minequery/v2 -run TestPing17
+            go test github.com/alteamc/minequery/v2 -run ${{ matrix.server.tests }}
+          on_retry_command: rm -rf server_${{ matrix.server.version }}/${{ matrix.server.type }}/world*
