@@ -42,10 +42,10 @@ jobs:
           command: |
             cd server_101/vanilla
             java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          on_retry_command: killall -9 java
 
       - name: "Run test server (CraftBukkit) and run tests"
         uses: "nick-fields/retry@v2"
@@ -56,10 +56,10 @@ jobs:
           command: |
             cd server_101/craftbukkit
             java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPingBeta18
-          on_retry_command: killall -9 java
 
   check_142:
     name: "Test on Minecraft 1.4.2"
@@ -98,10 +98,10 @@ jobs:
           command: |
             cd server_142/vanilla
             java -Xmx512M -jar server.jar &
-            cd ..
+            trap "killall -9 java" EXIT
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing14
-          on_retry_command: killall -9 java
 
       - name: "Run test server (CraftBukkit) and run tests"
         uses: "nick-fields/retry@v2"
@@ -112,10 +112,10 @@ jobs:
           command: |
             cd server_147/craftbukkit
             java -Xmx512M -jar server.jar &
-            cd ..
+            trap "killall -9 java" EXIT
+            cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing14
-          on_retry_command: killall -9 java
 
   check_161:
     name: "Test on Minecraft 1.6.1"
@@ -152,10 +152,10 @@ jobs:
           command: |
             cd server_161/vanilla
             java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing16
-          on_retry_command: killall -9 java
 
       - name: "Run test server (CraftBukkit) and run tests"
         uses: "nick-fields/retry@v2"
@@ -166,9 +166,10 @@ jobs:
           command: |
             cd server_161/craftbukkit
             java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
             cd ../..
             sleep 10
-            go test github.com/alteamc/minequery/v2 -run TestPing16
+            go test github.com/alteamc/minequery/v2 -run TestPing1
           on_retry_command: killall -9 java
 
   check_172:
@@ -206,10 +207,10 @@ jobs:
           command: |
             cd server_172/vanilla
             java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing17
-          on_retry_command: killall -9 java
 
       - name: "Run test server (CraftBukkit) and run tests"
         uses: "nick-fields/retry@v2"
@@ -220,7 +221,7 @@ jobs:
           command: |
             cd server_172/craftbukkit
             java -Xmx512M -jar server.jar &
+            trap "killall -9 java" EXIT
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPing17
-          on_retry_command: killall -9 java
