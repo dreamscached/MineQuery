@@ -46,13 +46,13 @@ var (
 		ProtocolVersion: Ping17ProtocolVersion172,
 		VersionName:     "CraftBukkit 1.7.2",
 	}
-	testPing17SpigotConfig = TestPing17Config{
-		MOTD:            "A Minecraft Server",
-		OnlinePlayers:   0,
-		MaxPlayers:      20,
-		ProtocolVersion: Ping17ProtocolVersion172,
-		VersionName:     "Spigot 1.7.2",
-	}
+	//testPing17SpigotConfig = TestPing17Config{
+	//	MOTD:            "A Minecraft Server",
+	//	OnlinePlayers:   0,
+	//	MaxPlayers:      20,
+	//	ProtocolVersion: Ping17ProtocolVersion172,
+	//	VersionName:     "Spigot 1.7.2",
+	//}
 )
 
 func TestPing17(t *testing.T) {
@@ -68,7 +68,8 @@ func testPing17GetConfig(t *testing.T) TestPing17Config {
 	case serverTypeCraftBukkit:
 		return testPing17CraftBukkitConfig
 	case serverTypeSpigot:
-		return testPing17SpigotConfig
+		return testPing17CraftBukkitConfig
+		//return testPing17SpigotConfig
 	}
 
 	t.Fatalf("unknown server type %#v", Type())
