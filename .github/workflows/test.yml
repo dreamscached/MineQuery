@@ -46,6 +46,7 @@ jobs:
             cd ../..
             sleep 10
             go test github.com/alteamc/minequery/v2 -run TestPingBeta18
+          on_retry_command: rm -rf server_101/vanilla/world*
 
       - name: "Run test server (CraftBukkit) and run tests"
         uses: "nick-fields/retry@v2"
@@ -58,8 +59,9 @@ jobs:
             java -Xmx512M -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
-            sleep 10
+            sleep 20
             go test github.com/alteamc/minequery/v2 -run TestPingBeta18
+          on_retry_command: rm -rf server_101/craftbukkit/world*
 
   check_142:
     name: "Test on Minecraft 1.4.2"
@@ -114,7 +116,7 @@ jobs:
             java -Xmx512M -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
-            sleep 10
+            sleep 20
             go test github.com/alteamc/minequery/v2 -run TestPing14
 
   check_161:
@@ -168,8 +170,8 @@ jobs:
             java -Xmx512M -jar server.jar | sed 's/>//g' &
             trap "killall -9 java" EXIT
             cd ../..
-            sleep 10
-            go test github.com/alteamc/minequery/v2 -run TestPing1
+            sleep 20
+            go test github.com/alteamc/minequery/v2 -run TestPing16
 
   check_172:
     name: "Test on Minecraft 1.7.2"
@@ -222,5 +224,5 @@ jobs:
             java -Xmx512M -jar server.jar &
             trap "killall -9 java" EXIT
             cd ../..
-            sleep 10
+            sleep 20
             go test github.com/alteamc/minequery/v2 -run TestPing17
