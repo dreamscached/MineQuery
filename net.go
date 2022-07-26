@@ -44,7 +44,6 @@ func shouldWrapIPv6(host string) bool {
 func toAddrString(host string, port int) string {
 	if shouldWrapIPv6(host) {
 		return fmt.Sprintf(`[%s]:%d`, host, port)
-	} else {
-		return fmt.Sprintf(`%s:%d`, host, port)
 	}
+	return fmt.Sprintf(`%s:%d`, host, port)
 }

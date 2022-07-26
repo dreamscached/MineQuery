@@ -1874,9 +1874,8 @@ func (p *Pinger) parseResponseData17(reader io.Reader, useStrict bool) (*Status1
 			// Incorrect UUID is only critical in UseStrict mode; else just skip over it
 			if useStrict {
 				return nil, fmt.Errorf("%w: invalid sample player UUID: %s", ErrInvalidStatus, err)
-			} else {
-				continue
 			}
+			continue
 		}
 
 		status.SamplePlayers[i] = PlayerEntry17{entry.Name, id}

@@ -107,17 +107,17 @@ func (p *Pinger) parseResponseData14(reader io.Reader) (*Status14, error) {
 	if bytes.HasPrefix(data, ping16ResponsePrefix) {
 		if p.UseStrict {
 			return nil, fmt.Errorf("%w: server unexpectedly replied with 1.6 response", ErrInvalidStatus)
-		} else {
-			res, err := p.parseResponseData16(bytes.NewReader(data))
-			if err != nil {
-				return nil, fmt.Errorf("could not parse status from response packet: %w", err)
-			}
-			return &Status14{
-				MOTD:          res.MOTD,
-				OnlinePlayers: res.OnlinePlayers,
-				MaxPlayers:    res.MaxPlayers,
-			}, nil
 		}
+
+		res, err := p.parseResponseData16(bytes.NewReader(data))
+		if err != nil {
+			return nil, fmt.Errorf("could not parse status from response packet: %w", err)
+		}
+		return &Status14{
+			MOTD:          res.MOTD,
+			OnlinePlayers: res.OnlinePlayers,
+			MaxPlayers:    res.MaxPlayers,
+		}, nil
 	}
 
 	// Split status string, parse and map to struct returning errors if conversions fail
