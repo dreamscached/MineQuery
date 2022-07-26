@@ -108,7 +108,7 @@ func (p *Pinger) parseResponseData14(reader io.Reader) (*Status14, error) {
 		if p.UseStrict {
 			return nil, fmt.Errorf("%w: server unexpectedly replied with 1.6 response", ErrInvalidStatus)
 		} else {
-			res, err := parseResponseData16(bytes.NewReader(data), p.UseStrict)
+			res, err := p.parseResponseData16(bytes.NewReader(data))
 			if err != nil {
 				return nil, fmt.Errorf("could not parse status from response packet: %w", err)
 			}
