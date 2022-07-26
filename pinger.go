@@ -76,7 +76,7 @@ type Pinger struct {
 
 // NewPinger constructs new Pinger instance optionally with additional options.
 func NewPinger(options ...PingerOption) *Pinger {
-	pinger := &Pinger{}
+	pinger := &Pinger{Dialer: &net.Dialer{}}
 	for _, configure := range options {
 		configure(pinger)
 	}
