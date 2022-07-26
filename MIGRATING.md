@@ -1,9 +1,30 @@
+# 🚀 Migrating from v2.0.x
+
+Version 2.1.0 has moved from value parameters, receivers and return values to pointers.
+
+## Receivers
+
+All `Ping*` functions now take `*Pinger` pointer as receiver.
+
+`DescriptionText()` now takes `*Status17` pointer as receiver.
+
+`IsIncompatible()` now takes `*Status16` pointer as receiver.
+
+
+## Parameters
+
+`WithDialer` option now takes `*net.Dialer` as parameter.
+
+
+## Fields
+
+`Pinger` struct now has `Dialer *net.Dialer` field.
+
+
 # 🚀 Migrating from v1
 
 Version 2 of MineQuery has several breaking changes from version 1. This section
 will help you migrate your existing codebase to v2.
-
-[skip this section]: #-minecraft-version-support
 
 ## Package renaming
 
