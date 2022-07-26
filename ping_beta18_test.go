@@ -9,7 +9,7 @@ func TestPingBeta18(t *testing.T) {
 	testPingBeta18WithNewPinger(t)
 }
 
-func testPingBeta18WithDefaultConfig(t *testing.T, status StatusBeta18) {
+func testPingBeta18WithDefaultConfig(t *testing.T, status *StatusBeta18) {
 	if status.MOTD != "A Minecraft Server" {
 		t.Errorf("expected MOTD = %#v, got %#v", "A Minecraft Server", status.MOTD)
 	}
