@@ -25,14 +25,12 @@
     </a>
 </p>
 
-## 🚀 Migrating from v1
+# 🚀 Migrating from v2.0.x or v1
 
 If you're new to MineQuery, you can skip this part. If you have used it before, you
-might want to give it a read if you're planning to switch from v1.
+might want to give it a read if you're planning to switch from v1 or v2.0.x.
 
-See [MIGRATING.md] for help with migrating from MineQuery v1 to v2.
-
-
+See [MIGRATING.md] for help with migrating from MineQuery.
 
 ## #️⃣ Minecraft Version Support
 
@@ -46,7 +44,6 @@ As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
 
 As of version 2.0.0, query protocol is not yet supported.
 See [issue #25] to track progress.
-
 
 ## 📚 How to use
 
@@ -97,12 +94,10 @@ pinger.Ping16("localhost", 25565)
 pinger.Ping17("localhost", 25565)
 ```
 
-
 #### WithTimeout
 
 By default, `Pinger` has 15-second timeout before connection aborts. If you need
 to customize this duration, you can use `WithTimeout` option.
-
 
 #### WithUseStrict
 
@@ -111,13 +106,11 @@ omits erroneous values it processes (incorrect favicon or bad player UUID).
 If you need it to return an error in case of invalid response, you can use 
 `WithUseStrict` option.
 
-
 #### WithProtocolVersion16
 
 By default, `Pinger` sends protocol version 74 in 1.6 ping packets. If you need
 to customize protocol version sent, use `WithProtocolVersion16`. MineQuery provides
 a convenient set of constants you can use &mdash; see `Ping16ProtocolVersion*` constants.
-
 
 #### WithProtocolVersion17
 
