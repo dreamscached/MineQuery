@@ -25,17 +25,16 @@
     </a>
 </p>
 
-# 🚀 Migrating from v1
+## 🚀 Migrating from v1
 
 If you're new to MineQuery, you can skip this part. If you have used it before, you
 might want to give it a read if you're planning to switch from v1.
 
 See [MIGRATING.md] for help with migrating from MineQuery v1 to v2.
 
-[MIGRATING.md]: MIGRATING.md
 
 
-# #️⃣ Minecraft Version Support
+## #️⃣ Minecraft Version Support
 
 As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
 
@@ -43,25 +42,15 @@ As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
 |-------------------|-------------|--------------|-------------|
 | ✅ Supported       | ✅ Supported | ✅ Supported  | ✅ Supported |
 
-[Beta 1.8 to 1.3]: https://wiki.vg/Server_List_Ping#Beta_1.8_to_1.3
-
-[1.4]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
-
-[1.6 to 1.7]: https://wiki.vg/Server_List_Ping#1.6
-
-[1.7+]: https://wiki.vg/Server_List_Ping#Current
-
-## Query Protocol Support
+### Query Protocol Support
 
 As of version 2.0.0, query protocol is not yet supported.
 See [issue #25] to track progress.
 
-[issue #25]: https://github.com/alteamc/minequery/issues/25
 
+## 📚 How to use
 
-# 📚 How to use
-
-## Basic usage
+### Basic usage
 
 For simple pinging with default parameters, use package-global `Ping*` functions 
 (where `*` is your respective Minecraft server version.)
@@ -79,12 +68,9 @@ fmt.Println(res)
 
 For full info on response object structure, see [documentation].
 
-[documentation]: https://pkg.go.dev/github.com/alteamc/minequery/v2
+### Advanced usage
 
-
-## Advanced usage
-
-### Pinger
+#### Pinger
 
 For more advanced usage, such as setting custom timeout or enabling more strict
 response validation, you can use `Pinger` struct with `PingerOption` passed to it:
@@ -111,16 +97,14 @@ pinger.Ping16("localhost", 25565)
 pinger.Ping17("localhost", 25565)
 ```
 
-[Basic usage]: #basic-usage
 
-
-### WithTimeout
+#### WithTimeout
 
 By default, `Pinger` has 15-second timeout before connection aborts. If you need
 to customize this duration, you can use `WithTimeout` option.
 
 
-### WithUseStrict
+#### WithUseStrict
 
 By default, `Pinger` does not validate response data it receives and silently
 omits erroneous values it processes (incorrect favicon or bad player UUID).
@@ -128,15 +112,24 @@ If you need it to return an error in case of invalid response, you can use
 `WithUseStrict` option.
 
 
-### WithProtocolVersion16
+#### WithProtocolVersion16
 
 By default, `Pinger` sends protocol version 74 in 1.6 ping packets. If you need
 to customize protocol version sent, use `WithProtocolVersion16`. MineQuery provides
 a convenient set of constants you can use &mdash; see `Ping16ProtocolVersion*` constants.
 
 
-### WithProtocolVersion17
+#### WithProtocolVersion17
 
 By default, `Pinger` sends protocol version -1 in 1.7 ping packets. If you need
 to customize protocol version sent, use `WithProtocolVersion17`. MineQuery provides
 a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` constants.
+
+[MIGRATING.md]: MIGRATING.md
+[Beta 1.8 to 1.3]: https://wiki.vg/Server_List_Ping#Beta_1.8_to_1.3
+[1.4]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
+[1.6 to 1.7]: https://wiki.vg/Server_List_Ping#1.6
+[1.7+]: https://wiki.vg/Server_List_Ping#Current
+[issue #25]: https://github.com/alteamc/minequery/issues/25
+[documentation]: https://pkg.go.dev/github.com/alteamc/minequery/v2
+[Basic usage]: #basic-usage
