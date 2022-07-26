@@ -10,7 +10,7 @@ type PingerOption func(*Pinger)
 
 // WithDialer sets Pinger Dialer used on Ping* function calls.
 //goland:noinspection GoUnusedExportedFunction
-func WithDialer(dialer net.Dialer) PingerOption {
+func WithDialer(dialer *net.Dialer) PingerOption {
 	return func(p *Pinger) {
 		p.Dialer = dialer
 	}
@@ -54,7 +54,7 @@ var defaultPinger = NewPinger(WithTimeout(15 * time.Second))
 // Pinger contains options to ping Minecraft servers.
 type Pinger struct {
 	// Dialer used to establish and maintain connection with servers.
-	Dialer net.Dialer
+	Dialer *net.Dialer
 
 	// Timeout is used to set TCP connection timeout on call of Ping* functions.
 	Timeout time.Duration
