@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (p Pinger) openTCPConn(host string, port int) (net.Conn, error) {
+func (p *Pinger) openTCPConn(host string, port int) (net.Conn, error) {
 	conn, err := p.Dialer.Dial("tcp", toAddrString(host, port))
 	if err != nil {
 		return nil, err
