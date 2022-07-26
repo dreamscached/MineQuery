@@ -44,37 +44,37 @@ type Querier struct {
 	UseStrict bool
 }
 
-func (q Querier) Query(host string, port int) (QueryStatus, error) {
+func (q *Querier) Query(host string, port int) (*QueryStatus, error) {
 	conn, err := q.openUDPConn(host, port)
 	if err != nil {
-		return QueryStatus{}, err
+		return nil, err
 	}
 	defer func() { _ = conn.Close() }()
 
 	sessionID, token, err := q.createSession(conn)
 	if err != nil {
-		return QueryStatus{}, err
+		return nil, err
 	}
 
 	res, err := q.requestStat(conn, sessionID, token)
 	if err != nil {
-		return QueryStatus{}, err
+		return nil, err
 	}
 	return res, nil
 }
 
-func (q Querier) createSession(conn *net.UDPConn) (int32, int32, error) {
-	sessionID := generateSessionID()
-	if err := writeQueryHandshakePacket(conn, sessionID); err != nil {
+func (q *Querier) createSession(conn *net.UDPConn) (int32, int32, error) {
+	sessionID := q.generateSessionID()
+	if err := q.writeQueryHandshakePacket(conn, sessionID); err != nil {
 		return 0, 0, err
 	}
 
-	content, err := readQueryHandshakeResponsePacket(conn, sessionID)
+	content, err := q.readQueryHandshakeResponsePacket(conn, sessionID)
 	if err != nil {
 		return 0, 0, err
 	}
 
-	token, err := parseQueryHandshakeResponse(content)
+	token, err := q.parseQueryHandshakeResponse(content)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -82,22 +82,22 @@ func (q Querier) createSession(conn *net.UDPConn) (int32, int32, error) {
 	return sessionID, token, nil
 }
 
-func (q Querier) requestStat(conn *net.UDPConn, sessionID int32, token int32) (QueryStatus, error) {
-	if err := writeQueryStatPacket(conn, sessionID, token); err != nil {
-		return QueryStatus{}, err
+func (q *Querier) requestStat(conn *net.UDPConn, sessionID int32, token int32) (*QueryStatus, error) {
+	if err := q.writeQueryStatPacket(conn, sessionID, token); err != nil {
+		return nil, err
 	}
 
-	content, err := readQueryStatResponsePacket(conn, sessionID)
+	content, err := q.readQueryStatResponsePacket(conn, sessionID)
 	if err != nil {
-		return QueryStatus{}, err
+		return nil, err
 	}
 
-	return parseQueryStatResponse(content, q.UseStrict)
+	return q.parseQueryStatResponse(content, q.UseStrict)
 }
 
 // Communication
 
-func writeQueryHandshakePacket(conn *net.UDPConn, sessionID int32) error {
+func (q *Querier) writeQueryHandshakePacket(conn *net.UDPConn, sessionID int32) error {
 	var packet bytes.Buffer
 
 	// Write request packet header
@@ -113,7 +113,7 @@ func writeQueryHandshakePacket(conn *net.UDPConn, sessionID int32) error {
 	return err
 }
 
-func readQueryHandshakeResponsePacket(conn *net.UDPConn, sessionID int32) (io.Reader, error) {
+func (q *Querier) readQueryHandshakeResponsePacket(conn *net.UDPConn, sessionID int32) (io.Reader, error) {
 	b := make([]byte, 1024)
 	n, _, err := conn.ReadFromUDP(b)
 	if err != nil {
@@ -138,7 +138,7 @@ func readQueryHandshakeResponsePacket(conn *net.UDPConn, sessionID int32) (io.Re
 	return reader, nil
 }
 
-func writeQueryStatPacket(conn *net.UDPConn, sessionID int32, token int32) error {
+func (q *Querier) writeQueryStatPacket(conn *net.UDPConn, sessionID int32, token int32) error {
 	var packet bytes.Buffer
 
 	// Write request packet header
@@ -157,7 +157,7 @@ func writeQueryStatPacket(conn *net.UDPConn, sessionID int32, token int32) error
 	return err
 }
 
-func readQueryStatResponsePacket(conn *net.UDPConn, sessionID int32) (io.Reader, error) {
+func (q *Querier) readQueryStatResponsePacket(conn *net.UDPConn, sessionID int32) (io.Reader, error) {
 	b := make([]byte, 1024)
 	n, _, err := conn.ReadFromUDP(b)
 	if err != nil {
@@ -184,7 +184,7 @@ func readQueryStatResponsePacket(conn *net.UDPConn, sessionID int32) (io.Reader,
 
 // Response processing
 
-func parseQueryHandshakeResponse(reader io.Reader) (int32, error) {
+func (q *Querier) parseQueryHandshakeResponse(reader io.Reader) (int32, error) {
 	token, _ := io.ReadAll(reader)
 	if len(token) == 0 {
 		return 0, fmt.Errorf("challenge token is empty")
@@ -200,49 +200,49 @@ func parseQueryHandshakeResponse(reader io.Reader) (int32, error) {
 	return int32(tokenInt), nil
 }
 
-func parseQueryStatResponse(reader io.Reader, useStrict bool) (QueryStatus, error) {
+func (q *Querier) parseQueryStatResponse(reader io.Reader, useStrict bool) (*QueryStatus, error) {
 	data, _ := io.ReadAll(reader)
 	if len(data) == 0 {
-		return QueryStatus{}, fmt.Errorf("%w: empty response body", ErrInvalidStatus)
+		return nil, fmt.Errorf("%w: empty response body", ErrInvalidStatus)
 	}
 	if bytes.HasSuffix(data, queryResponseStringTerminator) {
 		data = data[:len(data)-len(queryResponseStringTerminator)]
 	} else if useStrict {
-		return QueryStatus{}, fmt.Errorf("%w: response body is not NUL-termianted", ErrInvalidStatus)
+		return nil, fmt.Errorf("%w: response body is not NUL-termianted", ErrInvalidStatus)
 	}
 
 	fields := strings.SplitN(string(data), string(queryResponseStringTerminator), 6)
 	if len(fields) != 6 {
-		return QueryStatus{}, fmt.Errorf("%w: expected 5 first string fields in response body, got %#v", ErrInvalidStatus, len(fields)-1)
+		return nil, fmt.Errorf("%w: expected 5 first string fields in response body, got %#v", ErrInvalidStatus, len(fields)-1)
 	}
 	motd, gameType, mapName, onlinePlayersStr, maxPlayerStr := fields[0], fields[1], fields[2], fields[3], fields[4]
 
 	if gameType != queryGameType && useStrict {
-		return QueryStatus{}, fmt.Errorf("%w: expected gametype field to be %#v, got %#v", ErrInvalidStatus, queryGameType, gameType)
+		return nil, fmt.Errorf("%w: expected gametype field to be %#v, got %#v", ErrInvalidStatus, queryGameType, gameType)
 	}
 
 	onlinePlayers, err := strconv.ParseInt(onlinePlayersStr, 10, 32)
 	if err != nil {
-		return QueryStatus{}, fmt.Errorf("%w: could not parse online players count: %s", ErrInvalidStatus, err)
+		return nil, fmt.Errorf("%w: could not parse online players count: %s", ErrInvalidStatus, err)
 	}
 
 	maxPlayers, err := strconv.ParseInt(maxPlayerStr, 10, 32)
 	if err != nil {
-		return QueryStatus{}, fmt.Errorf("%w: could not parse max players count: %s", ErrInvalidStatus, err)
+		return nil, fmt.Errorf("%w: could not parse max players count: %s", ErrInvalidStatus, err)
 	}
 
 	remReader := bytes.NewReader([]byte(fields[5]))
 
 	var port int16
 	if err = binary.Read(remReader, binary.LittleEndian, &port); err != nil {
-		return QueryStatus{}, err
+		return nil, err
 	}
 
 	hostBytes, err := io.ReadAll(remReader)
 	if err != nil {
-		return QueryStatus{}, err
+		return nil, err
 	}
-	return QueryStatus{
+	return &QueryStatus{
 		MOTD:          motd,
 		GameType:      gameType,
 		Map:           mapName,
@@ -255,4 +255,4 @@ func parseQueryStatResponse(reader io.Reader, useStrict bool) (QueryStatus, erro
 
 // Util
 
-func generateSessionID() int32 { return int32(time.Now().Unix()) & querySessionIDMask }
+func (q *Querier) generateSessionID() int32 { return int32(time.Now().Unix()) & querySessionIDMask }
