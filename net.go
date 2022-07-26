@@ -20,6 +20,23 @@ func (p Pinger) openTCPConn(host string, port int) (net.Conn, error) {
 	return conn, nil
 }
 
+func (q Querier) openUDPConn(host string, port int) (*net.UDPConn, error) {
+	addr, err := net.ResolveUDPAddr("udp", toAddrString(host, port))
+	if err != nil {
+		return nil, err
+	}
+	conn, err := net.DialUDP("udp", nil, addr)
+	if err != nil {
+		return nil, err
+	}
+	if q.Timeout != 0 {
+		if err = conn.SetDeadline(time.Now().Add(q.Timeout)); err != nil {
+			return nil, err
+		}
+	}
+	return conn, nil
+}
+
 func shouldWrapIPv6(host string) bool {
 	return len(host) >= 2 && !(host[0] == '[' && host[1] == ']') && strings.Count(host, ":") >= 2
 }
