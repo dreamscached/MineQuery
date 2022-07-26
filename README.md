@@ -30,20 +30,20 @@
 If you're new to MineQuery, you can skip this part. If you have used it before, you
 might want to give it a read if you're planning to switch from v1 or v2.0.x.
 
-See [MIGRATING.md] for help with migrating from MineQuery.
+See [MIGRATING.md][1] for help with migrating from MineQuery.
 
 ## #️⃣ Minecraft Version Support
 
 As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
 
-| [Beta 1.8 to 1.3] | [1.4]       | [1.6 to 1.7] | [1.7+]      |
-|-------------------|-------------|--------------|-------------|
-| ✅ Supported       | ✅ Supported | ✅ Supported  | ✅ Supported |
+| [Beta 1.8 to 1.3][2] | [1.4][3]    | [1.6 to 1.7][4] | [1.7+][5]   |
+|----------------------|-------------|-----------------|-------------|
+| ✅ Supported          | ✅ Supported | ✅ Supported     | ✅ Supported |
 
 ### Query Protocol Support
 
 As of version 2.0.0, query protocol is not yet supported.
-See [issue #25] to track progress.
+See [issue #25][6] to track progress.
 
 ## 📚 How to use
 
@@ -63,7 +63,7 @@ if err != nil { panic(err) }
 fmt.Println(res)
 ```
 
-For full info on response object structure, see [documentation].
+For full info on response object structure, see [documentation][7].
 
 ### Advanced usage
 
@@ -81,7 +81,7 @@ pinger := minequery.NewPinger(
 )
 ```
 
-Then, use `Ping*` functions on it the same way as described in [Basic usage] section:
+Then, use `Ping*` functions on it the same way as described in [Basic usage][8] section:
 
 ```go
 // Ping Beta 1.8+
@@ -118,11 +118,11 @@ By default, `Pinger` sends protocol version -1 in 1.7 ping packets. If you need
 to customize protocol version sent, use `WithProtocolVersion17`. MineQuery provides
 a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` constants.
 
-[MIGRATING.md]: MIGRATING.md
-[Beta 1.8 to 1.3]: https://wiki.vg/Server_List_Ping#Beta_1.8_to_1.3
-[1.4]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
-[1.6 to 1.7]: https://wiki.vg/Server_List_Ping#1.6
-[1.7+]: https://wiki.vg/Server_List_Ping#Current
-[issue #25]: https://github.com/alteamc/minequery/issues/25
-[documentation]: https://pkg.go.dev/github.com/alteamc/minequery/v2
-[Basic usage]: #basic-usage
+[1]: MIGRATING.md
+[2]: https://wiki.vg/Server_List_Ping#Beta_1.8_to_1.3
+[3]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
+[4]: https://wiki.vg/Server_List_Ping#1.6
+[5]: https://wiki.vg/Server_List_Ping#Current
+[6]: https://github.com/alteamc/minequery/issues/25
+[7]: https://pkg.go.dev/github.com/alteamc/minequery/v2
+[8]: #basic-usage

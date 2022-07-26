@@ -1,8 +1,15 @@
-# 🚀 Migrating from v2.0.x
+# 🚀 Migrating MineQuery
+
+MineQuery is in active development since its very release, and occasionally, newer
+versions of it may introduce changes that might be breaking to existing codebase.
+
+This page will help you migrating your code in order to adapt to changes.
+
+## From v2.0.x
 
 Version 2.1.0 has moved from value parameters, receivers and return values to pointers.
 
-## Receivers
+### Receivers
 
 All `Ping*` functions now take `*Pinger` pointer as receiver.
 
@@ -10,20 +17,20 @@ All `Ping*` functions now take `*Pinger` pointer as receiver.
 
 `IsIncompatible()` now takes `*Status16` pointer as receiver.
 
-## Parameters
+### Parameters
 
 `WithDialer` option now takes `*net.Dialer` as parameter.
 
-## Fields
+### Fields
 
 `Pinger` struct now has `Dialer *net.Dialer` field.
 
-# 🚀 Migrating from v1
+## From v1
 
 Version 2 of MineQuery has several breaking changes from version 1. This section
 will help you migrate your existing codebase to v2.
 
-## Package renaming
+### Package renaming
 
 MineQuery v2 has its package named `minequery/v2` instead of `ping`. Import path has
 also changed:
@@ -32,7 +39,7 @@ also changed:
 |----------------------------------------------|--------------------------------------------|
 | `import "github.com/alteamc/minequery/ping"` | `import "github.com/alteamc/minequery/v2"` |
 
-## New ping function signatures
+### New ping function signatures
 
 To remove own names (Legacy, Ancient) of Minecraft versions, it has been decided to
 rename `Ping*` functions per `PingVERSION` scheme. See table below for reference.
@@ -43,12 +50,12 @@ rename `Ping*` functions per `PingVERSION` scheme. See table below for reference
 | `ping.PingLegacy(host string, port int) (*ping.LegacyResponse, error)`   | `minequery.Ping16(host string, port int) (*minequery.Status16, error)`<br><br>⚠️ **Note!** MineQuery v1 does not differentiate 1.4 and 1.6 pings and the above example pings 1.6 servers. Use `minequery.Ping14(host string, port int) (*minequery.Status14, error)` to ping 1.4 servers. |
 | `ping.PingAncient(host string, port int) (*ping.AncientResponse, error)` | `minequery.PingBeta18(host string, port int) (*minequery.StatusBeta18, error)`                                                                                                                                                                                                            |
 
-## New response structure naming and signatures
+### New response structure naming and signatures
 
 Per same reasoning as ping function renaming, response structs also have been renamed.
 See table below for reference.
 
-Bear in mind that package name has also changed, see [Package renaming] section.
+Bear in mind that package name has also changed, see [Package renaming][1] section.
 
 | v1 name                | v2 name                                                                                                                                                                                     |
 |------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -80,4 +87,4 @@ nested structs flattened and new fields added. See table below for reference.
 | `Favicon`           | `Icon`<br><br>⚠️ **Note!** MineQuery v1 did not process icon in any way, v2 decodes it into `image.Image` instance.                                          |
 | *New in v2*         | `PreviewsChat`                                                                                                                                               |
 
-[Package renaming]: #package-renaming
+[1]: #package-renaming
