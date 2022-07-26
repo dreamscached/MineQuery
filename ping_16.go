@@ -422,23 +422,23 @@ type Status16 struct {
 
 // IsIncompatible checks if response returned an incompatible protocol version (=127), meaning
 // this server cannot be joined unless client version is 1.7+.
-func (s Status16) IsIncompatible() bool {
+func (s *Status16) IsIncompatible() bool {
 	return s.ProtocolVersion == int(Ping16ProtocolVersionIncompatible)
 }
 
 // Ping16 pings 1.6 to 1.7 (exclusively) Minecraft servers (Notchian servers of more late versions also respond
 // to this ping packet.)
 //goland:noinspection GoUnusedExportedFunction
-func Ping16(host string, port int) (Status16, error) {
+func Ping16(host string, port int) (*Status16, error) {
 	return defaultPinger.Ping16(host, port)
 }
 
 // Ping16 pings 1.6 to 1.7 (exclusively) Minecraft servers (Notchian servers of more late versions also respond
 // to this ping packet.)
-func (p Pinger) Ping16(host string, port int) (Status16, error) {
+func (p *Pinger) Ping16(host string, port int) (*Status16, error) {
 	conn, err := p.openTCPConn(host, port)
 	if err != nil {
-		return Status16{}, err
+		return nil, err
 	}
 	defer func() { _ = conn.Close() }()
 
@@ -447,20 +447,20 @@ func (p Pinger) Ping16(host string, port int) (Status16, error) {
 	if protocolVersion == 0 {
 		protocolVersion = Ping16ProtocolVersion162
 	}
-	if err = writePingPacket16(conn, protocolVersion, host, port); err != nil {
-		return Status16{}, fmt.Errorf("could not write ping packet: %w", err)
+	if err = p.writePingPacket16(conn, protocolVersion, host, port); err != nil {
+		return nil, fmt.Errorf("could not write ping packet: %w", err)
 	}
 
 	// Read status response (note: uses the same packet reading approach as 1.4)
-	content, err := readResponsePacket14(conn)
+	content, err := p.readResponsePacket14(conn)
 	if err != nil {
-		return Status16{}, fmt.Errorf("could not read response packet: %w", err)
+		return nil, fmt.Errorf("could not read response packet: %w", err)
 	}
 
 	// Parse response data from status packet
-	res, err := parseResponseData16(content, p.UseStrict)
+	res, err := p.parseResponseData16(content)
 	if err != nil {
-		return Status16{}, fmt.Errorf("could not parse status from response packet: %w", err)
+		return nil, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
 
 	return res, nil
@@ -468,7 +468,7 @@ func (p Pinger) Ping16(host string, port int) (Status16, error) {
 
 // Communication
 
-func writePingPacket16(writer io.Writer, protocol byte, host string, port int) error {
+func (p *Pinger) writePingPacket16(writer io.Writer, protocol byte, host string, port int) error {
 	var packet bytes.Buffer
 
 	// Write hardcoded (it doesn't change ever) packet header
@@ -502,45 +502,45 @@ func writePingPacket16(writer io.Writer, protocol byte, host string, port int) e
 
 // Response processing
 
-func parseResponseData16(reader io.Reader, useStrict bool) (Status16, error) {
+func (p *Pinger) parseResponseData16(reader io.Reader) (*Status16, error) {
 	data, err := readAll(reader)
 	if err != nil {
-		return Status16{}, err
+		return nil, err
 	}
 
 	// Check if data string begins with '§1\x00' (00 a7 00 31 00 00) and strip it
 	if bytes.HasPrefix(data, ping16ResponsePrefix) {
 		data = data[len(ping16ResponsePrefix):]
-	} else if useStrict {
-		return Status16{}, fmt.Errorf("%w: status string is missing necessary prefix", ErrInvalidStatus)
+	} else if p.UseStrict {
+		return nil, fmt.Errorf("%w: status string is missing necessary prefix", ErrInvalidStatus)
 	}
 
 	// Split status string, parse and map to struct returning errors if conversions fail
 	fields := strings.Split(string(data), ping16ResponseFieldSeparator)
 	if len(fields) != 5 {
-		return Status16{}, fmt.Errorf("%w: expected 5 status fields, got %d", ErrInvalidStatus, len(fields))
+		return nil, fmt.Errorf("%w: expected 5 status fields, got %d", ErrInvalidStatus, len(fields))
 	}
 	serverProtocolVersionString, serverVersion, motd, onlineString, maxString := fields[0], fields[1], fields[2], fields[3], fields[4]
 
 	// Parse protocol version
 	serverProtocolVersion, err := strconv.ParseInt(serverProtocolVersionString, 10, 32)
 	if err != nil {
-		return Status16{}, fmt.Errorf("%w: could not parse protocol version: %s", ErrInvalidStatus, err)
+		return nil, fmt.Errorf("%w: could not parse protocol version: %s", ErrInvalidStatus, err)
 	}
 
 	// Parse online players
 	online, err := strconv.ParseInt(onlineString, 10, 32)
 	if err != nil {
-		return Status16{}, fmt.Errorf("%w: could not parse online players count: %s", ErrInvalidStatus, err)
+		return nil, fmt.Errorf("%w: could not parse online players count: %s", ErrInvalidStatus, err)
 	}
 
 	// Parse max players
 	max, err := strconv.ParseInt(maxString, 10, 32)
 	if err != nil {
-		return Status16{}, fmt.Errorf("%w: could not parse max players count: %s", ErrInvalidStatus, err)
+		return nil, fmt.Errorf("%w: could not parse max players count: %s", ErrInvalidStatus, err)
 	}
 
-	return Status16{
+	return &Status16{
 		ProtocolVersion: int(serverProtocolVersion),
 		ServerVersion:   serverVersion,
 		MOTD:            motd,
