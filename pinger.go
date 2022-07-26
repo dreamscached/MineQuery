@@ -75,10 +75,10 @@ type Pinger struct {
 }
 
 // NewPinger constructs new Pinger instance optionally with additional options.
-func NewPinger(options ...PingerOption) Pinger {
-	var pinger Pinger
+func NewPinger(options ...PingerOption) *Pinger {
+	pinger := &Pinger{}
 	for _, configure := range options {
-		configure(&pinger)
+		configure(pinger)
 	}
 	return pinger
 }
