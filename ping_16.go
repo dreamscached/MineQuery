@@ -447,18 +447,18 @@ func (p *Pinger) Ping16(host string, port int) (*Status16, error) {
 	if protocolVersion == 0 {
 		protocolVersion = Ping16ProtocolVersion162
 	}
-	if err = p.writePingPacket16(conn, protocolVersion, host, port); err != nil {
+	if err = p.ping16WritePingPacket(conn, protocolVersion, host, port); err != nil {
 		return nil, fmt.Errorf("could not write ping packet: %w", err)
 	}
 
 	// Read status response (note: uses the same packet reading approach as 1.4)
-	content, err := p.readResponsePacket14(conn)
+	payload, err := p.ping14ReadResponsePayload(conn)
 	if err != nil {
 		return nil, fmt.Errorf("could not read response packet: %w", err)
 	}
 
 	// Parse response data from status packet
-	res, err := p.parseResponseData16(content)
+	res, err := p.ping16ParseResponsePayload(payload)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
@@ -468,7 +468,7 @@ func (p *Pinger) Ping16(host string, port int) (*Status16, error) {
 
 // Communication
 
-func (p *Pinger) writePingPacket16(writer io.Writer, protocol byte, host string, port int) error {
+func (p *Pinger) ping16WritePingPacket(writer io.Writer, protocol byte, host string, port int) error {
 	var packet bytes.Buffer
 
 	// Write hardcoded (it doesn't change ever) packet header
@@ -502,21 +502,16 @@ func (p *Pinger) writePingPacket16(writer io.Writer, protocol byte, host string,
 
 // Response processing
 
-func (p *Pinger) parseResponseData16(reader io.Reader) (*Status16, error) {
-	data, err := readAll(reader)
-	if err != nil {
-		return nil, err
-	}
-
+func (p *Pinger) ping16ParseResponsePayload(payload []byte) (*Status16, error) {
 	// Check if data string begins with '§1\x00' (00 a7 00 31 00 00) and strip it
-	if bytes.HasPrefix(data, ping16ResponsePrefix) {
-		data = data[len(ping16ResponsePrefix):]
+	if bytes.HasPrefix(payload, ping16ResponsePrefix) {
+		payload = payload[len(ping16ResponsePrefix):]
 	} else if p.UseStrict {
 		return nil, fmt.Errorf("%w: status string is missing necessary prefix", ErrInvalidStatus)
 	}
 
 	// Split status string, parse and map to struct returning errors if conversions fail
-	fields := strings.Split(string(data), ping16ResponseFieldSeparator)
+	fields := strings.Split(string(payload), ping16ResponseFieldSeparator)
 	if len(fields) != 5 {
 		return nil, fmt.Errorf("%w: expected 5 status fields, got %d", ErrInvalidStatus, len(fields))
 	}
