@@ -1672,8 +1672,8 @@ type Status17 struct {
 
 // DescriptionText collects text components of Description together into normal string.
 func (s *Status17) DescriptionText() string {
-	var componentStack stack
-	var buffer bytes.Buffer
+	componentStack := make(stack, 0, 8)
+	buffer := bytes.NewBuffer(make([]byte, 0, 128))
 
 	// Push root component to stack, whatever it is (a slice, a map or a string)
 	componentStack.Push(s.Description)
