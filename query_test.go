@@ -7,7 +7,7 @@ import (
 )
 
 func TestQuerier_Query(t *testing.T) {
-	p := NewPinger(WithTimeout(1000 * time.Second))
+	p := NewPinger(WithTimeout(1 * time.Second))
 
 	res, err := p.QueryFull("157.90.163.70", 25565)
 	if err != nil {
