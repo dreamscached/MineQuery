@@ -20,7 +20,7 @@ func (p *Pinger) openTCPConn(host string, port int) (net.Conn, error) {
 	return conn, nil
 }
 
-func (q Querier) openUDPConn(host string, port int) (*net.UDPConn, error) {
+func (p *Pinger) openUDPConn(host string, port int) (*net.UDPConn, error) {
 	addr, err := net.ResolveUDPAddr("udp", toAddrString(host, port))
 	if err != nil {
 		return nil, err
@@ -29,8 +29,8 @@ func (q Querier) openUDPConn(host string, port int) (*net.UDPConn, error) {
 	if err != nil {
 		return nil, err
 	}
-	if q.Timeout != 0 {
-		if err = conn.SetDeadline(time.Now().Add(q.Timeout)); err != nil {
+	if p.Timeout != 0 {
+		if err = conn.SetDeadline(time.Now().Add(p.Timeout)); err != nil {
 			return nil, err
 		}
 	}
