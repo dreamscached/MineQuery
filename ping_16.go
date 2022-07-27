@@ -469,32 +469,33 @@ func (p *Pinger) Ping16(host string, port int) (*Status16, error) {
 // Communication
 
 func (p *Pinger) ping16WritePingPacket(writer io.Writer, protocol byte, host string, port int) error {
-	var packet bytes.Buffer
+	// Allocate buffer with initial capacity of 64 which should be enough for most packets.
+	packet := bytes.NewBuffer(make([]byte, 0, 64))
 
 	// Write hardcoded (it doesn't change ever) packet header
-	_ = writeBytes(&packet, ping16PingPacketHeader)
+	_ = writeBytes(packet, ping16PingPacketHeader)
 
 	// Encode hostname to UTF16BE and store in buffer to calculate length further on
-	var hostnameBytes bytes.Buffer
-	if _, err := utf16BEEncoder.Writer(&hostnameBytes).Write([]byte(host)); err != nil {
+	hostnameBytes := &bytes.Buffer{}
+	if _, err := utf16BEEncoder.Writer(hostnameBytes).Write([]byte(host)); err != nil {
 		return err
 	}
 
 	// Write packet length (7 + length of hostname string)
-	_ = writeUShort(&packet, uint16(7+hostnameBytes.Len()))
+	_ = writeUShort(packet, uint16(7+hostnameBytes.Len()))
 
 	// Get preferred protocol version and fallback to Ping16ProtocolVersion162 if not set
 	// and write it to packet
-	_ = writeByte(&packet, protocol)
+	_ = writeByte(packet, protocol)
 
 	// Write hostname string length
-	_ = writeUShort(&packet, uint16(len(host)))
+	_ = writeUShort(packet, uint16(len(host)))
 
 	// Write hostname string
-	_ = writeBuffer(&packet, &hostnameBytes)
+	_ = writeBuffer(packet, hostnameBytes)
 
 	// Write target server port
-	_ = writeUInt(&packet, uint32(port))
+	_ = writeUInt(packet, uint32(port))
 
 	_, err := packet.WriteTo(writer)
 	return err

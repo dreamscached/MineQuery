@@ -84,12 +84,12 @@ func (p *Pinger) ping14ReadResponsePayload(reader io.Reader) ([]byte, error) {
 
 	// Read remainder of the status packet as raw bytes
 	// This is a UTF-16BE string separated by § (paragraph sign)
-	var data bytes.Buffer
-	if _, err = io.CopyN(&data, reader, int64(length*2)); err != nil {
+	payload := bytes.NewBuffer(make([]byte, 0, length*2))
+	if _, err = io.CopyN(payload, reader, int64(length*2)); err != nil {
 		return nil, err
 	}
 
-	decoded, err := utf16BEDecoder.Bytes(data.Bytes())
+	decoded, err := utf16BEDecoder.Bytes(payload.Bytes())
 	if err != nil {
 		return nil, err
 	}
