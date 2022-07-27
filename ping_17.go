@@ -1672,8 +1672,8 @@ type Status17 struct {
 
 // DescriptionText collects text components of Description together into normal string.
 func (s *Status17) DescriptionText() string {
-	var componentStack stack
-	var buffer bytes.Buffer
+	componentStack := make(stack, 0, 8)
+	buffer := bytes.NewBuffer(make([]byte, 0, 128))
 
 	// Push root component to stack, whatever it is (a slice, a map or a string)
 	componentStack.Push(s.Description)
@@ -1738,23 +1738,23 @@ func (p *Pinger) Ping17(host string, port int) (*Status17, error) {
 	if protocolVersion == 0 {
 		protocolVersion = Ping17ProtocolVersionUndefined
 	}
-	if err = p.writeHandshakePacket17(conn, protocolVersion, host, port); err != nil {
+	if err = p.ping17WriteHandshakePacket(conn, protocolVersion, host, port); err != nil {
 		return nil, fmt.Errorf("could not write handshake packet: %w", err)
 	}
 
 	// Send status request packet
-	if err = p.writeStatusReqPacket17(conn); err != nil {
+	if err = p.ping17WriteStatusRequestPacket(conn); err != nil {
 		return nil, fmt.Errorf("could not write status request packet: %w", err)
 	}
 
 	// Read status response
-	content, err := p.readResponsePacket17(conn)
+	payload, err := p.ping17ReadStatusResponsePacketPayload(conn)
 	if err != nil {
 		return nil, fmt.Errorf("could not read response packet: %w", err)
 	}
 
 	// Parse response data from status packet
-	res, err := p.parseResponseData17(content, p.UseStrict)
+	res, err := p.ping17ParseStatusResponsePayload(payload)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
@@ -1764,54 +1764,56 @@ func (p *Pinger) Ping17(host string, port int) (*Status17, error) {
 
 // Communication
 
-func (p *Pinger) writePacket17(writer io.Writer, packetID uint32, data io.Reader) error {
-	var content bytes.Buffer
+func (p *Pinger) ping17WritePacket(writer io.Writer, packetID uint32, payloadData []byte) error {
+	// Allocate payload buffer of size = 5 (payload length field) + payload length
+	payloadBuffer := bytes.NewBuffer(make([]byte, 0, 5+len(payloadData)))
 
 	// Write packet ID as unsigned VarInt to content buffer
-	_ = writeUVarInt(&content, packetID)
+	_ = writeUVarInt(payloadBuffer, packetID)
 
 	// Copy packet data to content buffer
-	_, _ = io.Copy(&content, data)
+	_, _ = payloadBuffer.Write(payloadData)
 
-	var packet bytes.Buffer
+	// Allocate packet buffer of size = 5 (packet ID) + payload length
+	packet := bytes.NewBuffer(make([]byte, 0, 5+payloadBuffer.Len()))
 
 	// Write packet data length to packet buffer as unsigned VarInt
-	_ = writeUVarInt(&packet, uint32(content.Len()))
+	_ = writeUVarInt(packet, uint32(payloadBuffer.Len()))
 
 	// Write content buffer to packet buffer
-	_, _ = content.WriteTo(&packet)
+	_, _ = payloadBuffer.WriteTo(packet)
 
 	_, err := packet.WriteTo(writer)
 	return err
 }
 
-func (p *Pinger) writeHandshakePacket17(writer io.Writer, protocol int32, host string, port int) error {
-	var buffer bytes.Buffer
+func (p *Pinger) ping17WriteHandshakePacket(writer io.Writer, protocol int32, host string, port int) error {
+	buffer := bytes.NewBuffer(make([]byte, 0, 32))
 
 	// Write protocol version as VarInt
-	_ = writeVarInt(&buffer, protocol)
+	_ = writeVarInt(buffer, protocol)
 
 	// Write length of hostname string as unsigned VarInt
-	_ = writeUVarInt(&buffer, uint32(len(host)))
+	_ = writeUVarInt(buffer, uint32(len(host)))
 
 	// Write hostname string as byte array
-	_ = writeBytes(&buffer, []byte(host))
+	_ = writeBytes(buffer, []byte(host))
 
 	// Write port as unsigned short
-	_ = writeUShort(&buffer, uint16(port))
+	_ = writeUShort(buffer, uint16(port))
 
 	// Write next state as unsigned VarInt
-	_ = writeUVarInt(&buffer, ping17NextStateStatus)
+	_ = writeUVarInt(buffer, ping17NextStateStatus)
 
-	return p.writePacket17(writer, ping17HandshakePacketID, &buffer)
+	return p.ping17WritePacket(writer, ping17HandshakePacketID, buffer.Bytes())
 }
 
-func (p *Pinger) writeStatusReqPacket17(writer io.Writer) error {
+func (p *Pinger) ping17WriteStatusRequestPacket(writer io.Writer) error {
 	// Write empty status request packet with only packet ID and zero length
-	return p.writePacket17(writer, ping17StatusRequestPacketID, &bytes.Buffer{})
+	return p.ping17WritePacket(writer, ping17StatusRequestPacketID, nil)
 }
 
-func (p *Pinger) readResponsePacket17(reader io.Reader) (io.Reader, error) {
+func (p *Pinger) ping17ReadStatusResponsePacketPayload(reader io.Reader) ([]byte, error) {
 	// Read packet length as unsigned VarInt
 	packetLength, err := readUVarInt(reader)
 	if err != nil {
@@ -1819,13 +1821,13 @@ func (p *Pinger) readResponsePacket17(reader io.Reader) (io.Reader, error) {
 	}
 
 	// Read entire packet to a buffer
-	var packet bytes.Buffer
-	if _, err = io.CopyN(&packet, reader, int64(packetLength)); err != nil {
+	packet := bytes.NewBuffer(make([]byte, 0, packetLength))
+	if _, err = io.CopyN(packet, reader, int64(packetLength)); err != nil {
 		return nil, err
 	}
 
 	// Read packet ID as unsigned VarInt
-	id, err := readUVarInt(&packet)
+	id, err := readUVarInt(packet)
 	if err != nil {
 		return nil, err
 	} else if id != ping17StatusResponsePacketID {
@@ -1833,26 +1835,26 @@ func (p *Pinger) readResponsePacket17(reader io.Reader) (io.Reader, error) {
 	}
 
 	// Read JSON data length as unsigned VarInt
-	dataLength, err := readUVarInt(&packet)
+	dataLength, err := readUVarInt(packet)
 	if err != nil {
 		return nil, err
 	}
 
 	// Read JSON data to a buffer
-	var data bytes.Buffer
-	if _, err = io.CopyN(&data, &packet, int64(dataLength)); err != nil {
+	payload := bytes.NewBuffer(make([]byte, 0, dataLength))
+	if _, err = io.CopyN(payload, packet, int64(dataLength)); err != nil {
 		return nil, err
 	}
 
-	return &data, nil
+	return payload.Bytes(), nil
 }
 
 // Response processing
 
-func (p *Pinger) parseResponseData17(reader io.Reader, useStrict bool) (*Status17, error) {
+func (p *Pinger) ping17ParseStatusResponsePayload(payload []byte) (*Status17, error) {
 	// Parse JSON to struct
 	var statusMapping status17JsonMapping
-	if err := json.NewDecoder(reader).Decode(&statusMapping); err != nil {
+	if err := json.Unmarshal(payload, &statusMapping); err != nil {
 		return nil, err
 	}
 
@@ -1872,7 +1874,7 @@ func (p *Pinger) parseResponseData17(reader io.Reader, useStrict bool) (*Status1
 		id, err := uuid.Parse(entry.ID)
 		if err != nil {
 			// Incorrect UUID is only critical in UseStrict mode; else just skip over it
-			if useStrict {
+			if p.UseStrict {
 				return nil, fmt.Errorf("%w: invalid sample player UUID: %s", ErrInvalidStatus, err)
 			}
 			continue
@@ -1885,7 +1887,7 @@ func (p *Pinger) parseResponseData17(reader io.Reader, useStrict bool) (*Status1
 	if statusMapping.Favicon != "" {
 		if !strings.HasPrefix(statusMapping.Favicon, ping17StatusImagePrefix) {
 			// Incorrect prefix on favicon string only concerns us if in UseStrict mode; pass otherwise
-			if useStrict {
+			if p.UseStrict {
 				return nil, fmt.Errorf("%w: invalid favicon data URL", ErrInvalidStatus)
 			}
 		} else {

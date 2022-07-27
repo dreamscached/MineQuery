@@ -39,18 +39,18 @@ func (p *Pinger) PingBeta18(host string, port int) (*StatusBeta18, error) {
 	defer func() { _ = conn.Close() }()
 
 	// Send ping packet
-	if err = p.writePingPacketBeta18(conn); err != nil {
+	if err = p.pingBeta18WritePingPacket(conn); err != nil {
 		return nil, fmt.Errorf("could not write ping packet: %w", err)
 	}
 
 	// Read status response (note: uses the same packet reading approach as 1.4)
-	content, err := p.readResponsePacketBeta18(conn)
+	payload, err := p.pingBeta18ReadResponsePacket(conn)
 	if err != nil {
 		return nil, fmt.Errorf("could not read response packet: %w", err)
 	}
 
 	// Parse response data from status packet
-	res, err := p.parseResponseDataBeta18(content)
+	res, err := p.pingBeta18ParseResponsePayload(payload)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse status from response packet: %w", err)
 	}
@@ -60,13 +60,13 @@ func (p *Pinger) PingBeta18(host string, port int) (*StatusBeta18, error) {
 
 // Communication
 
-func (p *Pinger) writePingPacketBeta18(writer io.Writer) error {
+func (p *Pinger) pingBeta18WritePingPacket(writer io.Writer) error {
 	// Write single-byte FE ping packet
 	err := writeBytes(writer, pingBeta18PingPacket)
 	return err
 }
 
-func (p *Pinger) readResponsePacketBeta18(reader io.Reader) (io.Reader, error) {
+func (p *Pinger) pingBeta18ReadResponsePacket(reader io.Reader) ([]byte, error) {
 	// Read packet type, return error if it isn't FF kick packet
 	id, err := readByte(reader)
 	if err != nil {
@@ -84,25 +84,24 @@ func (p *Pinger) readResponsePacketBeta18(reader io.Reader) (io.Reader, error) {
 
 	// Read remainder of the status packet as raw bytes
 	// This is a UTF-16BE string separated by § (paragraph sign)
-	var data bytes.Buffer
-	if _, err = io.CopyN(&data, reader, int64(length*2)); err != nil {
+	payload := bytes.NewBuffer(make([]byte, 0, length*2))
+	if _, err = io.CopyN(payload, reader, int64(length*2)); err != nil {
 		return nil, err
 	}
 
-	// Return UTF16-BE decoder with data as input
-	return utf16BEDecoder.Reader(&data), nil
-}
-
-// Response processing
-
-func (p *Pinger) parseResponseDataBeta18(reader io.Reader) (*StatusBeta18, error) {
-	data, err := readAll(reader)
+	decoded, err := utf16BEDecoder.Bytes(payload.Bytes())
 	if err != nil {
 		return nil, err
 	}
 
+	return decoded, nil
+}
+
+// Response processing
+
+func (p *Pinger) pingBeta18ParseResponsePayload(payload []byte) (*StatusBeta18, error) {
 	// Split status string, parse and map to struct returning errors if conversions fail
-	fields := strings.Split(string(data), pingBeta18ResponseFieldSeparator)
+	fields := strings.Split(string(payload), pingBeta18ResponseFieldSeparator)
 	if len(fields) != 3 {
 		return nil, fmt.Errorf("%w: expected 3 status fields, got %d", ErrInvalidStatus, len(fields))
 	}
