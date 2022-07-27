@@ -16,7 +16,7 @@ var (
 	queryResponseStringTerminator = []byte{0x0}
 	queryFullStatPadding          = []byte{0xff, 0xff, 0xff, 0x01}
 	queryKVSectionPadding         = []byte{0x73, 0x70, 0x6c, 0x69, 0x74, 0x6e, 0x75, 0x6d, 0x00, 0x80, 0x00}
-	queryPlayerSectionpadding     = []byte{0x01, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x5f, 0x00, 0x00}
+	queryPlayerSectionPadding     = []byte{0x01, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x5f, 0x00, 0x00}
 )
 
 const (
@@ -363,10 +363,10 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader, useStrict bool) (*
 		return nil, err
 	}
 
-	pb = make([]byte, len(queryPlayerSectionpadding))
+	pb = make([]byte, len(queryPlayerSectionPadding))
 	if _, err = dataReader.Read(pb); err != nil {
 		return nil, err
-	} else if !bytes.Equal(pb, queryPlayerSectionpadding) && p.UseStrict {
+	} else if !bytes.Equal(pb, queryPlayerSectionPadding) && p.UseStrict {
 		return nil, fmt.Errorf("%w: player section padding is invalid", ErrInvalidStatus)
 	}
 
