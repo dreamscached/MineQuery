@@ -10,6 +10,12 @@
   <a href="https://discord.gg/9ruheUG3Wg"><img alt="License" src="https://img.shields.io/discord/929337829610369095"></a>
 </p>
 
+## MineQuery v1 is deprecated
+
+MineQuery has been heavily reworked and improved with [v2](https://github.com/alteamc/minequery/tree/v2) release.
+Please consider [migrating](https://github.com/alteamc/minequery/blob/query/MIGRATING.md) to v2 as v1 of this library
+will no longer be maintained.
+
 ## Minecraft version support
 
 ### Server List Ping
@@ -20,7 +26,7 @@
 
 ### Query
 
-Query protocol is currently unsupported.
+Query protocol is unsupported in v1.
 
 ## Usage
 
