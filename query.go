@@ -33,7 +33,7 @@ const (
 	queryGameID   = "MINECRAFT"
 )
 
-// BasicQueryStatus holds query status response returned Minecraft servers via QueryBasic protocol.
+// BasicQueryStatus holds query status response returned Minecraft servers via Query protocol.
 type BasicQueryStatus struct {
 	MOTD          string
 	GameType      string
