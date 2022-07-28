@@ -124,6 +124,11 @@ jobs:
           command: |
             cd server_${{ matrix.server.version }}/${{ matrix.server.type }}
             java ${{ env.JVM_ARGS }} -jar server.jar | sed 's/>//g' &
+            if [ "${{ matrix.server.test_query }}" = "true" ]; then
+              sleep 5; kill -9 java
+              sed -i 's/enable-query=false/enable-query=true/g' server.properties
+              java ${{ env.JVM_ARGS }} -jar server.jar | sed 's/>//g' &
+            fi
             trap "killall -9 java" EXIT
             cd ../..
             sleep ${{ matrix.server.delay }}
