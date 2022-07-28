@@ -101,8 +101,7 @@ jobs:
           curl --fail ${{ matrix.server.url }} -o server_${{ matrix.server.version }}/${{ matrix.server.type }}/server.jar
       - name: "Get local IP for testing"
         run: |
-          ip -o -4 addr
-          echo "HOST=$(ip -o -4 addr | grep -oE '192\.168\.[0-9]+\.[0-9]+' | head -n 1)" >> "$GITHUB_ENV"
+          echo "HOST=$(ip -o -4 addr | grep -E "^[0-9]+: $(route | grep "^default" | rev | cut -f 1 -d ' ' | rev)" | tr -s ' ' | cut -f 4 -d ' ' | cut -f 1 -d '/')" >> "$GITHUB_ENV"
       - name: "Run test server and run test"
         uses: "nick-fields/retry@v2"
         env:
