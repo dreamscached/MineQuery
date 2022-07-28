@@ -82,7 +82,6 @@ jobs:
     runs-on: "ubuntu-latest"
 
     env:
-      HOST: "127.0.0.1"
       PORT: "25565"
       JVM_ARGS: "-Xmx512M"
 
@@ -100,6 +99,9 @@ jobs:
         run: |
           mkdir -p server_${{ matrix.server.version }}/${{ matrix.server.type }}
           curl --fail ${{ matrix.server.url }} -o server_${{ matrix.server.version }}/${{ matrix.server.type }}/server.jar
+      - name: "Get local IP for testing"
+        run: |
+          ip -o -4 addr | grep -oE '192\.168\.[0-9]+\.[0-9]+' | head -n 1 >> "$GITHUB_ENV"
       - name: "Run test server and run test"
         uses: "nick-fields/retry@v2"
         env:
