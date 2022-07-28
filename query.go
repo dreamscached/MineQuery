@@ -41,7 +41,7 @@ type BasicQueryStatus struct {
 	OnlinePlayers int
 	MaxPlayers    int
 	Port          int
-	IP            string
+	Host          string
 }
 
 // FullQueryPluginEntry holds plugin entry info (name and version) of plugin sent via Query protocol.
@@ -372,7 +372,7 @@ func (p *Pinger) parseQueryBasicStatResponse(reader io.Reader) (*BasicQueryStatu
 		OnlinePlayers: int(onlinePlayers),
 		MaxPlayers:    int(maxPlayers),
 		Port:          int(port),
-		IP:            string(hostBytes),
+		Host:          string(hostBytes),
 	}, nil
 }
 
@@ -492,7 +492,7 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader) (*FullQueryStatus,
 	}
 
 	// Read hostname field
-	hostname, err := queryGetFullStatField(fields, "hostname")
+	hostname, err := queryGetFullStatField(fields, "hostip")
 	if err != nil {
 		return nil, err
 	}
