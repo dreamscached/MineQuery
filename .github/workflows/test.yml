@@ -10,7 +10,7 @@ jobs:
   ping:
     strategy:
       matrix:
-        test:
+        server:
           - url: "https://files.betacraft.uk/server-archive/release/1.0/1.0.1.jar"
             version: "101"
             type: "vanilla"
@@ -89,7 +89,7 @@ jobs:
             delay: 20
             timeout: 120
 
-    name: "TestPing${{ matrix.server.test }} (${{ matrix.server.type}} ${{ matrix.server.version }})"
+    name: "TestPing${{ matrix.server.test }} (${{ matrix.server.type }} ${{ matrix.server.version }})"
     runs-on: "ubuntu-latest"
 
     env:
