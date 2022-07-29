@@ -118,7 +118,7 @@ jobs:
       - name: "Setup Java"
         uses: "actions/setup-java@v3"
         with:
-          distribution: "openjdk"
+          distribution: "adopt-hotspot"
           java-version: "8"
       - name: "Pull Minecraft server cache"
         id: "mc-server-cache"
