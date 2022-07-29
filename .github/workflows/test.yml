@@ -127,7 +127,7 @@ jobs:
           path: "server_${{ matrix.test.server.version }}"
           key: "mc-server-${{ matrix.test.server.type }}-v${{ matrix.test.server.version }}-cache"
       - name: "Download Minecraft server"
-        if: "!steps.mc-server-cache.outputs.cache-hit"
+        if: "${{ !steps.mc-server-cache.outputs.cache-hit }}"
         run: |
           mkdir -p server_${{ matrix.test.server.version }}/${{ matrix.test.server.type }}
           curl --fail ${{ matrix.test.server.url }} -o server_${{ matrix.test.server.version }}/${{ matrix.test.server.type }}/server.jar
