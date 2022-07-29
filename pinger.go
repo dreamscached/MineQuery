@@ -51,15 +51,15 @@ func WithProtocolVersion17(version int32) PingerOption {
 // that don't have Pinger as receiver. The default Pinger has timeout set to 15 seconds.
 var defaultPinger = NewPinger(WithTimeout(15 * time.Second))
 
-// Pinger contains options to ping Minecraft servers.
+// Pinger contains options to ping and query Minecraft servers.
 type Pinger struct {
 	// Dialer used to establish and maintain connection with servers.
 	Dialer *net.Dialer
 
-	// Timeout is used to set TCP connection timeout on call of Ping* functions.
+	// Timeout is used to set TCP/UDP connection timeout on call of Ping* and QueryBasic* functions.
 	Timeout time.Duration
 
-	// UseStrict is a configuration value that defines if tolerable errors (in server ping responses)
+	// UseStrict is a configuration value that defines if tolerable errors (in server ping/query responses)
 	// that are by default silently ignored should be actually returned as errors.
 	UseStrict bool
 
