@@ -56,7 +56,7 @@ type Pinger struct {
 	// Dialer used to establish and maintain connection with servers.
 	Dialer *net.Dialer
 
-	// Timeout is used to set TCP/UDP connection timeout on call of Ping* and QueryBasic* functions.
+	// Timeout is used to set TCP/UDP connection timeout on call of Ping* and Query* functions.
 	Timeout time.Duration
 
 	// UseStrict is a configuration value that defines if tolerable errors (in server ping/query responses)
