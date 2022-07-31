@@ -1,9 +1,6 @@
 <h1 align="center">📡 MineQuery</h1>
 <h4 align="center">Minecraft Server List Ping library written in Go</h4>
 <p align="center">
-    <a href="https://github.com/alteamc/minequery/actions/workflows/test.yml">
-        <img alt="Test workflow badge" src="https://img.shields.io/github/workflow/status/alteamc/minequery/Test/v2?label=Test&logo=github">
-    </a>
     <a href="https://github.com/alteamc/minequery/blob/v2/go.mod">
         <img alt="Go version badge" src="https://img.shields.io/github/go-mod/go-version/alteamc/minequery">
     </a>
@@ -25,43 +22,29 @@
     </a>
 </p>
 
-# 🚀 Migrating from v1
+# 🚀 Migrating from v2.0.x or v1
 
 If you're new to MineQuery, you can skip this part. If you have used it before, you
-might want to give it a read if you're planning to switch from v1.
+might want to give it a read if you're planning to switch from v1 or v2.0.x.
 
-See [MIGRATING.md] for help with migrating from MineQuery v1 to v2.
+See [MIGRATING.md][1] for help with migrating from MineQuery.
 
-[MIGRATING.md]: MIGRATING.md
-
-
-# #️⃣ Minecraft Version Support
+## #️⃣ Minecraft Version Support
 
 As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
 
-| [Beta 1.8 to 1.3] | [1.4]       | [1.6 to 1.7] | [1.7+]      |
-|-------------------|-------------|--------------|-------------|
-| ✅ Supported       | ✅ Supported | ✅ Supported  | ✅ Supported |
+| [Beta 1.8 to 1.3][2] | [1.4][3]    | [1.6 to 1.7][4] | [1.7+][5]   |
+|----------------------|-------------|-----------------|-------------|
+| ✅ Supported          | ✅ Supported | ✅ Supported     | ✅ Supported |
 
-[Beta 1.8 to 1.3]: https://wiki.vg/Server_List_Ping#Beta_1.8_to_1.3
-
-[1.4]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
-
-[1.6 to 1.7]: https://wiki.vg/Server_List_Ping#1.6
-
-[1.7+]: https://wiki.vg/Server_List_Ping#Current
-
-## Query Protocol Support
+### Query Protocol Support
 
 As of version 2.0.0, query protocol is not yet supported.
-See [issue #25] to track progress.
+See [issue #25][6] to track progress.
 
-[issue #25]: https://github.com/alteamc/minequery/issues/25
+## 📚 How to use
 
-
-# 📚 How to use
-
-## Basic usage
+### Basic usage
 
 For simple pinging with default parameters, use package-global `Ping*` functions 
 (where `*` is your respective Minecraft server version.)
@@ -77,14 +60,11 @@ if err != nil { panic(err) }
 fmt.Println(res)
 ```
 
-For full info on response object structure, see [documentation].
+For full info on response object structure, see [documentation][7].
 
-[documentation]: https://pkg.go.dev/github.com/alteamc/minequery/v2
+### Advanced usage
 
-
-## Advanced usage
-
-### Pinger
+#### Pinger
 
 For more advanced usage, such as setting custom timeout or enabling more strict
 response validation, you can use `Pinger` struct with `PingerOption` passed to it:
@@ -98,7 +78,7 @@ pinger := minequery.NewPinger(
 )
 ```
 
-Then, use `Ping*` functions on it the same way as described in [Basic usage] section:
+Then, use `Ping*` functions on it the same way as described in [Basic usage][8] section:
 
 ```go
 // Ping Beta 1.8+
@@ -111,32 +91,35 @@ pinger.Ping16("localhost", 25565)
 pinger.Ping17("localhost", 25565)
 ```
 
-[Basic usage]: #basic-usage
-
-
-### WithTimeout
+#### WithTimeout
 
 By default, `Pinger` has 15-second timeout before connection aborts. If you need
 to customize this duration, you can use `WithTimeout` option.
 
-
-### WithUseStrict
+#### WithUseStrict
 
 By default, `Pinger` does not validate response data it receives and silently
 omits erroneous values it processes (incorrect favicon or bad player UUID).
 If you need it to return an error in case of invalid response, you can use 
 `WithUseStrict` option.
 
-
-### WithProtocolVersion16
+#### WithProtocolVersion16
 
 By default, `Pinger` sends protocol version 74 in 1.6 ping packets. If you need
 to customize protocol version sent, use `WithProtocolVersion16`. MineQuery provides
 a convenient set of constants you can use &mdash; see `Ping16ProtocolVersion*` constants.
 
-
-### WithProtocolVersion17
+#### WithProtocolVersion17
 
 By default, `Pinger` sends protocol version -1 in 1.7 ping packets. If you need
 to customize protocol version sent, use `WithProtocolVersion17`. MineQuery provides
 a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` constants.
+
+[1]: MIGRATING.md
+[2]: https://wiki.vg/Server_List_Ping#Beta_1.8_to_1.3
+[3]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
+[4]: https://wiki.vg/Server_List_Ping#1.6
+[5]: https://wiki.vg/Server_List_Ping#Current
+[6]: https://github.com/alteamc/minequery/issues/25
+[7]: https://pkg.go.dev/github.com/alteamc/minequery/v2
+[8]: #basic-usage
