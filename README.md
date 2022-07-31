@@ -39,8 +39,7 @@ As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
 
 ### Query Protocol Support
 
-As of version 2.0.0, query protocol is not yet supported.
-See [issue #25][6] to track progress.
+As of version 2.1.0, query protocol is fully supported. See examples below.
 
 ## 📚 How to use
 
@@ -54,8 +53,20 @@ all previous version pings (e.g. 1.7+ server will respond to 1.6 ping, and so on
 
 Here's a quick example how to:
 
+#### Pinging (1.7+ servers)
+
 ```go
 res, err := minequery.Ping17("localhost", 25565)
+if err != nil { panic(err) }
+fmt.Println(res)
+```
+
+#### Querying
+
+```go
+res, err := minequery.QueryBasic("localhost", 25565)
+// ... or ...
+res, err := minequery.QueryFull("localhost", 25565)
 if err != nil { panic(err) }
 fmt.Println(res)
 ```
@@ -89,6 +100,15 @@ pinger.Ping14("localhost", 25565)
 pinger.Ping16("localhost", 25565)
 // Ping 1.7+
 pinger.Ping17("localhost", 25565)
+```
+
+Or `Query*`:
+
+```go
+// Query basic stats
+res, err := pinger.QueryBasic("localhost", 25565)
+// Query full stats
+res, err := pinger.QueryFull("localhost", 25565)
 ```
 
 #### WithTimeout
