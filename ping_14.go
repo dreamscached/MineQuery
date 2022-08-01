@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-var ping14PingPacket = []byte{0xfe}
+var ping14PingPacket = []byte{0xfe, 0x01}
 
 const (
 	ping14ResponsePacketID              byte = 0xff
