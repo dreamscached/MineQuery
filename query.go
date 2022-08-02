@@ -403,7 +403,7 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader) (*FullQueryStatus,
 		return nil, err
 	}
 
-	// Read padding for players section and ensure it is also hardcoded (if UseStrict0
+	// Read padding for players section and ensure it is also hardcoded (if UseStrict)
 	pb = make([]byte, len(queryPlayerSectionPadding))
 	if _, err = dataReader.Read(pb); err != nil {
 		return nil, err
