@@ -55,37 +55,7 @@ func writeBytes(writer io.Writer, bytes []byte) error {
 	return err
 }
 
-func writeBuffer(writer io.Writer, buffer *bytes.Buffer) error {
-	_, err := buffer.WriteTo(writer)
-	return err
-}
-
-func writeByte(writer io.Writer, c byte) error {
-	_, err := writer.Write([]byte{c})
-	return err
-}
-
-func readByte(reader io.Reader) (byte, error) {
-	byteArr := make([]byte, 1)
-	if _, err := reader.Read(byteArr); err != nil {
-		return 0, err
-	}
-	return byteArr[0], nil
-}
-
 func writeUShort(writer io.Writer, value uint16) error {
-	return binary.Write(writer, binary.BigEndian, value)
-}
-
-func readUShort(reader io.Reader) (uint16, error) {
-	var value uint16
-	if err := binary.Read(reader, binary.BigEndian, &value); err != nil {
-		return 0, err
-	}
-	return value, nil
-}
-
-func writeUInt(writer io.Writer, value uint32) error {
 	return binary.Write(writer, binary.BigEndian, value)
 }
 

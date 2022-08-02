@@ -11,8 +11,7 @@ import (
 var ping14PingPacket = []byte{0xfe, 0x01}
 
 const (
-	ping14ResponsePacketID              byte = 0xff
-	ping14ResponsePayloadFieldSeparator      = "§"
+	ping14ResponsePayloadFieldSeparator = "§"
 )
 
 // Status14 holds status response returned by 1.4 to 1.6 (exclusively) Minecraft servers.
@@ -44,7 +43,7 @@ func (p *Pinger) Ping14(host string, port int) (*Status14, error) {
 	}
 
 	// Read status response (note: uses the same packet reading approach as 1.4)
-	payload, err := p.ping14ReadResponsePayload(conn)
+	payload, err := p.pingBeta18ReadResponsePacket(conn)
 	if err != nil {
 		return nil, fmt.Errorf("could not read response packet: %w", err)
 	}
@@ -64,38 +63,6 @@ func (p *Pinger) ping14WritePingPacket(writer io.Writer) error {
 	// Write 2-byte FE 01 ping packet
 	err := writeBytes(writer, ping14PingPacket)
 	return err
-}
-
-func (p *Pinger) ping14ReadResponsePayload(reader io.Reader) ([]byte, error) {
-	// Read packet type, return error if it isn't FF kick packet
-	id, err := readByte(reader)
-	if err != nil {
-		return nil, err
-	} else if id != ping14ResponsePacketID {
-		return nil, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping16ResponsePacketID, id)
-	}
-
-	// Read packet length, return error if it isn't readable as unsigned short
-	// Worth noting that this needs to be multiplied by two further on (for encoding reasons, most probably)
-	length, err := readUShort(reader)
-	if err != nil {
-		return nil, err
-	}
-
-	// Read remainder of the status packet as raw bytes
-	// This is a UTF-16BE string separated by § (paragraph sign)
-	payload := bytes.NewBuffer(make([]byte, 0, length*2))
-	if _, err = io.CopyN(payload, reader, int64(length*2)); err != nil {
-		return nil, err
-	}
-
-	decoded, err := utf16BEDecoder.Bytes(payload.Bytes())
-	if err != nil {
-		return nil, err
-	}
-
-	// Return UTF16-BE decoder with data as input
-	return decoded, nil
 }
 
 // Response processing
