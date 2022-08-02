@@ -3,7 +3,7 @@
 MineQuery is in active development since its very release, and occasionally, newer
 versions of it may introduce changes that might be breaking to existing codebase.
 
-This page will help you migrating your code in order to adapt to changes.
+This page will help you migrate your code in order to adapt to changes.
 
 ## From v2.0.x
 
