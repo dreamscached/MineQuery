@@ -3,6 +3,7 @@ package minequery
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -1767,46 +1768,48 @@ func (p *Pinger) Ping17(host string, port int) (*Status17, error) {
 
 func (p *Pinger) ping17WritePacket(writer io.Writer, packetID uint32, payloadData []byte) error {
 	// Allocate payload buffer of size = 5 (payload length field) + payload length
-	payloadBuffer := bytes.NewBuffer(make([]byte, 0, 5+len(payloadData)))
+	pb := bytes.NewBuffer(make([]byte, 0, 5+len(payloadData)))
 
 	// Write packet ID as unsigned VarInt to content buffer
-	_ = writeUVarInt(payloadBuffer, packetID)
+	b := make([]byte, 5)
+	pb.Write(b[:binary.PutUvarint(b, uint64(packetID))])
 
 	// Copy packet data to content buffer
-	_, _ = payloadBuffer.Write(payloadData)
+	_, _ = pb.Write(payloadData)
 
 	// Allocate packet buffer of size = 5 (packet ID) + payload length
-	packet := bytes.NewBuffer(make([]byte, 0, 5+payloadBuffer.Len()))
+	packet := bytes.NewBuffer(make([]byte, 0, 5+pb.Len()))
 
-	// Write packet data length to packet buffer as unsigned VarInt
-	_ = writeUVarInt(packet, uint32(payloadBuffer.Len()))
+	// Write packet data length to packet buffer unsigned VarInt
+	packet.Write(b[:binary.PutUvarint(b, uint64(pb.Len()))])
 
 	// Write content buffer to packet buffer
-	_, _ = payloadBuffer.WriteTo(packet)
+	_, _ = pb.WriteTo(packet)
 
 	_, err := packet.WriteTo(writer)
 	return err
 }
 
 func (p *Pinger) ping17WriteHandshakePacket(writer io.Writer, protocol int32, host string, port int) error {
-	buffer := bytes.NewBuffer(make([]byte, 0, 32))
+	packet := bytes.NewBuffer(make([]byte, 0, 32))
 
 	// Write protocol version as VarInt
-	_ = writeVarInt(buffer, protocol)
+	b := make([]byte, 5)
+	packet.Write(b[:binary.PutVarint(b, int64(protocol))])
 
 	// Write length of hostname string as unsigned VarInt
-	_ = writeUVarInt(buffer, uint32(len(host)))
+	packet.Write(b[:binary.PutUvarint(b, uint64(len(host)))])
 
 	// Write hostname string as byte array
-	_ = writeBytes(buffer, []byte(host))
+	packet.Write([]byte(host))
 
 	// Write port as unsigned short
-	_ = writeUShort(buffer, uint16(port))
+	_ = binary.Write(packet, binary.BigEndian, uint16(port))
 
 	// Write next state as unsigned VarInt
-	_ = writeUVarInt(buffer, ping17NextStateStatus)
+	packet.Write(b[:binary.PutUvarint(b, uint64(ping17NextStateStatus))])
 
-	return p.ping17WritePacket(writer, ping17HandshakePacketID, buffer.Bytes())
+	return p.ping17WritePacket(writer, ping17HandshakePacketID, packet.Bytes())
 }
 
 func (p *Pinger) ping17WriteStatusRequestPacket(writer io.Writer) error {
@@ -1815,39 +1818,49 @@ func (p *Pinger) ping17WriteStatusRequestPacket(writer io.Writer) error {
 }
 
 func (p *Pinger) ping17ReadStatusResponsePacketPayload(reader io.Reader) ([]byte, error) {
+	// Allocate buffer of 5 bytes (VarInt maximum length) and read packet length
+	lb := make([]byte, 5)
+	ln, err := reader.Read(lb)
+	if err != nil {
+		return nil, err
+	}
+	lr := bytes.NewReader(lb)
+
 	// Read packet length as unsigned VarInt
-	packetLength, err := readUVarInt(reader)
+	pl, err := binary.ReadUvarint(lr)
 	if err != nil {
 		return nil, err
 	}
 
 	// Read entire packet to a buffer
-	packet := bytes.NewBuffer(make([]byte, 0, packetLength))
-	if _, err = io.CopyN(packet, reader, int64(packetLength)); err != nil {
+	pb := bytes.NewBuffer(make([]byte, 0, pl))
+	pb.Write(lb[ln-lr.Len() : ln])
+	if _, err = io.CopyN(pb, reader, int64(pl)-int64(lr.Len())); err != nil {
 		return nil, err
 	}
+	pr := bytes.NewReader(pb.Bytes())
 
 	// Read packet ID as unsigned VarInt
-	id, err := readUVarInt(packet)
+	id, err := binary.ReadUvarint(pr)
 	if err != nil {
 		return nil, err
-	} else if id != ping17StatusResponsePacketID {
+	} else if uint32(id) != ping17StatusResponsePacketID {
 		return nil, fmt.Errorf("expected packet ID %#x, but instead got %#x", ping17StatusResponsePacketID, id)
 	}
 
-	// Read JSON data length as unsigned VarInt
-	dataLength, err := readUVarInt(packet)
+	// Read status payload length
+	dl, err := binary.ReadUvarint(pr)
 	if err != nil {
 		return nil, err
 	}
 
-	// Read JSON data to a buffer
-	payload := bytes.NewBuffer(make([]byte, 0, dataLength))
-	if _, err = io.CopyN(payload, packet, int64(dataLength)); err != nil {
+	// Read packet payload
+	db := bytes.NewBuffer(make([]byte, 0, dl))
+	if _, err = io.CopyN(db, pr, int64(dl)); err != nil {
 		return nil, err
 	}
 
-	return payload.Bytes(), nil
+	return db.Bytes(), nil
 }
 
 // Response processing

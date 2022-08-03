@@ -513,7 +513,7 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader) (*FullQueryStatus,
 	}, nil
 }
 
-func queryReadFullStatFieldMap(reader io.Reader) (map[string]string, error) {
+func queryReadFullStatFieldMap(reader io.ByteReader) (map[string]string, error) {
 	fields := make(map[string]string)
 	for {
 		key, err := readAllUntilZero(reader)
@@ -531,7 +531,7 @@ func queryReadFullStatFieldMap(reader io.Reader) (map[string]string, error) {
 	return fields, nil
 }
 
-func queryReadFullStatPlayerList(reader io.Reader) ([]string, error) {
+func queryReadFullStatPlayerList(reader io.ByteReader) ([]string, error) {
 	players := make([]string, 0, 10)
 	for {
 		nickname, err := readAllUntilZero(reader)

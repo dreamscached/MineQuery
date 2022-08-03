@@ -61,7 +61,7 @@ func (p *Pinger) Ping14(host string, port int) (*Status14, error) {
 
 func (p *Pinger) ping14WritePingPacket(writer io.Writer) error {
 	// Write 2-byte FE 01 ping packet
-	err := writeBytes(writer, ping14PingPacket)
+	_, err := writer.Write(ping14PingPacket)
 	return err
 }
 
