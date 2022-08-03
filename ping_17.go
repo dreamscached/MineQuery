@@ -1690,8 +1690,9 @@ func (s *Status17) DescriptionText() string {
 		case []interface{}:
 			// If component is a slice, push its items to stack in reverse order
 			// (so that they are processed in natural order because stack is LIFO)
-			for i := len(current.([]interface{})) - 1; i >= 0; i-- {
-				componentStack.Push(current.([]interface{})[i])
+			current := current.([]interface{})
+			for i := len(current) - 1; i >= 0; i-- {
+				componentStack.Push(current[i])
 			}
 
 		case map[string]interface{}:
