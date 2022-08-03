@@ -2,6 +2,7 @@ package minequery
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"strconv"
@@ -62,13 +63,24 @@ func (p *Pinger) PingBeta18(host string, port int) (*StatusBeta18, error) {
 
 func (p *Pinger) pingBeta18WritePingPacket(writer io.Writer) error {
 	// Write single-byte FE ping packet
-	err := writeBytes(writer, pingBeta18PingPacket)
+	_, err := writer.Write(pingBeta18PingPacket)
 	return err
 }
 
 func (p *Pinger) pingBeta18ReadResponsePacket(reader io.Reader) ([]byte, error) {
+	// Read first three bytes (packet ID as byte + packet length as short)
+	// and create a reader over this buffer for sequential reading.
+	b := make([]byte, 3)
+	bn, err := reader.Read(b)
+	if err != nil {
+		return nil, err
+	} else if bn < 3 {
+		return nil, io.EOF
+	}
+	br := bytes.NewReader(b)
+
 	// Read packet type, return error if it isn't FF kick packet
-	id, err := readByte(reader)
+	id, err := br.ReadByte()
 	if err != nil {
 		return nil, err
 	} else if id != pingBeta18ResponsePacketID {
@@ -77,8 +89,8 @@ func (p *Pinger) pingBeta18ReadResponsePacket(reader io.Reader) ([]byte, error) 
 
 	// Read packet length, return error if it isn't readable as unsigned short
 	// Worth noting that this needs to be multiplied by two further on (for encoding reasons, most probably)
-	length, err := readUShort(reader)
-	if err != nil {
+	var length uint16
+	if err = binary.Read(br, binary.BigEndian, &length); err != nil {
 		return nil, err
 	}
 
@@ -89,6 +101,7 @@ func (p *Pinger) pingBeta18ReadResponsePacket(reader io.Reader) ([]byte, error) 
 		return nil, err
 	}
 
+	// Decode UTF-16BE string
 	decoded, err := utf16BEDecoder.Bytes(payload.Bytes())
 	if err != nil {
 		return nil, err

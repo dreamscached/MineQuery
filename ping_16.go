@@ -2,6 +2,7 @@ package minequery
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"strconv"
@@ -452,7 +453,7 @@ func (p *Pinger) Ping16(host string, port int) (*Status16, error) {
 	}
 
 	// Read status response (note: uses the same packet reading approach as 1.4)
-	payload, err := p.ping14ReadResponsePayload(conn)
+	payload, err := p.pingBeta18ReadResponsePacket(conn)
 	if err != nil {
 		return nil, fmt.Errorf("could not read response packet: %w", err)
 	}
@@ -473,29 +474,29 @@ func (p *Pinger) ping16WritePingPacket(writer io.Writer, protocol byte, host str
 	packet := bytes.NewBuffer(make([]byte, 0, 64))
 
 	// Write hardcoded (it doesn't change ever) packet header
-	_ = writeBytes(packet, ping16PingPacketHeader)
+	packet.Write(ping16PingPacketHeader)
 
 	// Encode hostname to UTF16BE and store in buffer to calculate length further on
-	hostnameBytes := &bytes.Buffer{}
-	if _, err := utf16BEEncoder.Writer(hostnameBytes).Write([]byte(host)); err != nil {
+	hb := &bytes.Buffer{}
+	if _, err := utf16BEEncoder.Writer(hb).Write([]byte(host)); err != nil {
 		return err
 	}
 
 	// Write packet length (7 + length of hostname string)
-	_ = writeUShort(packet, uint16(7+hostnameBytes.Len()))
+	_ = binary.Write(packet, binary.BigEndian, uint16(7+hb.Len()))
 
 	// Get preferred protocol version and fallback to Ping16ProtocolVersion162 if not set
 	// and write it to packet
-	_ = writeByte(packet, protocol)
+	packet.WriteByte(protocol)
 
 	// Write hostname string length
-	_ = writeUShort(packet, uint16(len(host)))
+	_ = binary.Write(packet, binary.BigEndian, uint16(len(host)))
 
 	// Write hostname string
-	_ = writeBuffer(packet, hostnameBytes)
+	_, _ = hb.WriteTo(packet)
 
 	// Write target server port
-	_ = writeUInt(packet, uint32(port))
+	_ = binary.Write(packet, binary.BigEndian, uint32(port))
 
 	_, err := packet.WriteTo(writer)
 	return err
