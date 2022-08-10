@@ -64,6 +64,7 @@ type FullQueryStatus struct {
 	SamplePlayers []string
 	Port          int
 	Host          string
+	Data          map[string]string
 }
 
 // QueryBasic queries Minecraft servers and returns simplified query response.
@@ -403,7 +404,7 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader) (*FullQueryStatus,
 		return nil, err
 	}
 
-	// Read padding for players section and ensure it is also hardcoded (if UseStrict0
+	// Read padding for players section and ensure it is also hardcoded (if UseStrict)
 	pb = make([]byte, len(queryPlayerSectionPadding))
 	if _, err = dataReader.Read(pb); err != nil {
 		return nil, err
@@ -510,10 +511,11 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader) (*FullQueryStatus,
 		SamplePlayers: players,
 		Port:          int(port),
 		Host:          hostname,
+		Data:          fields,
 	}, nil
 }
 
-func queryReadFullStatFieldMap(reader io.Reader) (map[string]string, error) {
+func queryReadFullStatFieldMap(reader io.ByteReader) (map[string]string, error) {
 	fields := make(map[string]string)
 	for {
 		key, err := readAllUntilZero(reader)
@@ -531,7 +533,7 @@ func queryReadFullStatFieldMap(reader io.Reader) (map[string]string, error) {
 	return fields, nil
 }
 
-func queryReadFullStatPlayerList(reader io.Reader) ([]string, error) {
+func queryReadFullStatPlayerList(reader io.ByteReader) ([]string, error) {
 	players := make([]string, 0, 10)
 	for {
 		nickname, err := readAllUntilZero(reader)
@@ -549,7 +551,7 @@ func queryParseFullStatPluginsList(str string) (string, []FullQueryPluginEntry, 
 	// Split version string by color; left part is server version and brand, right part is plugins list
 	parts := strings.SplitN(str, ":", 2)
 	if len(parts) < 2 {
-		return parts[0], nil, nil
+		return parts[0], make([]FullQueryPluginEntry, 0), nil
 	}
 	ver, rem := parts[0], parts[1]
 
@@ -574,6 +576,7 @@ func queryGetFullStatField(fields map[string]string, key string) (string, error)
 	if !ok {
 		return "", fmt.Errorf("%w: response body does not contain %s field", ErrInvalidStatus, key)
 	}
+	delete(fields, key)
 	return value, nil
 }
 
