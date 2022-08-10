@@ -64,6 +64,7 @@ type FullQueryStatus struct {
 	SamplePlayers []string
 	Port          int
 	Host          string
+	Data          map[string]string
 }
 
 // QueryBasic queries Minecraft servers and returns simplified query response.
@@ -510,6 +511,7 @@ func (p *Pinger) parseQueryFullStatResponse(reader io.Reader) (*FullQueryStatus,
 		SamplePlayers: players,
 		Port:          int(port),
 		Host:          hostname,
+		Data:          fields,
 	}, nil
 }
 
@@ -549,7 +551,7 @@ func queryParseFullStatPluginsList(str string) (string, []FullQueryPluginEntry, 
 	// Split version string by color; left part is server version and brand, right part is plugins list
 	parts := strings.SplitN(str, ":", 2)
 	if len(parts) < 2 {
-		return parts[0], nil, nil
+		return parts[0], make([]FullQueryPluginEntry, 0), nil
 	}
 	ver, rem := parts[0], parts[1]
 
@@ -574,6 +576,7 @@ func queryGetFullStatField(fields map[string]string, key string) (string, error)
 	if !ok {
 		return "", fmt.Errorf("%w: response body does not contain %s field", ErrInvalidStatus, key)
 	}
+	delete(fields, key)
 	return value, nil
 }
 
