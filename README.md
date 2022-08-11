@@ -31,16 +31,15 @@ See [MIGRATING.md][1] for help with migrating from MineQuery.
 
 ## #️⃣ Minecraft Version Support
 
-As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
+MineQuery supports pinging of all versions of Minecraft.
 
-| [Beta 1.8 to 1.3][2] | [1.4][3]    | [1.6 to 1.7][4] | [1.7+][5]   |
-|----------------------|-------------|-----------------|-------------|
-| ✅ Supported          | ✅ Supported | ✅ Supported     | ✅ Supported |
+| [Beta 1.8 to 1.3][2] | [1.4 to 1.5][3] | [1.6][4]    | [1.7+][5]   |
+|----------------------|-----------------|-------------|-------------|
+| ✅ Supported          | ✅ Supported     | ✅ Supported | ✅ Supported |
 
 ### Query Protocol Support
 
-As of version 2.0.0, query protocol is not yet supported.
-See [issue #25][6] to track progress.
+MineQuery fully supports [Query][9] protocol. 
 
 ## 📚 How to use
 
@@ -123,3 +122,4 @@ a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` c
 [6]: https://github.com/alteamc/minequery/issues/25
 [7]: https://pkg.go.dev/github.com/alteamc/minequery/v2
 [8]: #basic-usage
+[9]: https://wiki.vg/Query
