@@ -15,7 +15,7 @@
     </a>
     <br/>
     <a href="https://github.com/alteamc/minequery#readme">
-        <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.8%20to%201.3%20%7C%201.4%20%7C%201.5%20to%201.6%20%7C%201.7%2B-brightgreen">
+        <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.8%20to%201.3%20%7C%201.4%20to%201.5%20%7C%201.6%20%7C%201.7%2B-brightgreen">
     </a>
     <a href="https://discord.gg/9ruheUG3Wg">
         <img alt="Discord server badge" src="https://discordapp.com/api/guilds/929337829610369095/widget.png?style=shield">
@@ -31,15 +31,15 @@ See [MIGRATING.md][1] for help with migrating from MineQuery.
 
 ## #️⃣ Minecraft Version Support
 
-As of version 2.0.0, MineQuery supports pinging of all versions of Minecraft.
+MineQuery supports pinging of all versions of Minecraft.
 
-| [Beta 1.8 to 1.3][2] | [1.4][3]    | [1.6 to 1.7][4] | [1.7+][5]   |
-|----------------------|-------------|-----------------|-------------|
-| ✅ Supported          | ✅ Supported | ✅ Supported     | ✅ Supported |
+| [Beta 1.8 to 1.3][2] | [1.4 to 1.5][3] | [1.6][4]    | [1.7+][5]   |
+|----------------------|-----------------|-------------|-------------|
+| ✅ Supported          | ✅ Supported     | ✅ Supported | ✅ Supported |
 
 ### Query Protocol Support
 
-As of version 2.1.0, query protocol is fully supported. See examples below.
+MineQuery fully supports [Query][9] protocol. 
 
 ## 📚 How to use
 
@@ -143,3 +143,4 @@ a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` c
 [6]: https://github.com/alteamc/minequery/issues/25
 [7]: https://pkg.go.dev/github.com/alteamc/minequery/v2
 [8]: #basic-usage
+[9]: https://wiki.vg/Query
