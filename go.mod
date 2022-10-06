@@ -1,4 +1,4 @@
-module github.com/alteamc/minequery
+module github.com/dreamscached/minequery
 
 go 1.17
 

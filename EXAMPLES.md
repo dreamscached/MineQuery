@@ -8,7 +8,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/alteamc/minequery/ping"
+	"github.com/dreamscached/minequery/ping"
 )
 
 func main() {
@@ -29,7 +29,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/alteamc/minequery/ping"
+	"github.com/dreamscached/minequery/ping"
 )
 
 func main() {
@@ -50,7 +50,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/alteamc/minequery/ping"
+	"github.com/dreamscached/minequery/ping"
 )
 
 func main() {
@@ -75,7 +75,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alteamc/minequery/ping"
+	"github.com/dreamscached/minequery/ping"
 )
 
 func main() {
