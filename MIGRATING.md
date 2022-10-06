@@ -35,9 +35,9 @@ will help you migrate your existing codebase to v2.
 MineQuery v2 has its package named `minequery/v2` instead of `ping`. Import path has
 also changed:
 
-| v1 import                                    | v2 import                                  |
-|----------------------------------------------|--------------------------------------------|
-| `import "github.com/alteamc/minequery/ping"` | `import "github.com/alteamc/minequery/v2"` |
+| v1 import                                         | v2 import                                       |
+|---------------------------------------------------|-------------------------------------------------|
+| `import "github.com/dreamscached/minequery/ping"` | `import "github.com/dreamscached/minequery/v2"` |
 
 ### New ping function signatures
 
