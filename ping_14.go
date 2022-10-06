@@ -23,6 +23,7 @@ type Status14 struct {
 
 // Ping14 pings 1.4 to 1.6 (exclusively) Minecraft servers (Notchian servers of more late versions also respond to
 // this ping packet.)
+//
 //goland:noinspection GoUnusedExportedFunction
 func Ping14(host string, port int) (*Status14, error) {
 	return defaultPinger.Ping14(host, port)
@@ -69,7 +70,7 @@ func (p *Pinger) ping14WritePingPacket(writer io.Writer) error {
 
 func (p *Pinger) ping14ParseResponsePayload(payload []byte) (*Status14, error) {
 	// NOTE: Spigot 1.4 servers reply with 1.6 response format.
-	// See https://github.com/alteamc/minequery/issues/31 for details.
+	// See https://github.com/dreamscached/minequery/issues/31 for details.
 	// Check if data string begins with '§1\x00' (00 a7 00 31 00 00) and pass processing to 1.6 logic in this case.
 	if bytes.HasPrefix(payload, ping16ResponsePrefix) {
 		if p.UseStrict {

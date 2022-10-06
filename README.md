@@ -1,20 +1,20 @@
 <h1 align="center">📡 MineQuery</h1>
 <h4 align="center">Minecraft Server List Ping library written in Go</h4>
 <p align="center">
-    <a href="https://github.com/alteamc/minequery/blob/v2/go.mod">
-        <img alt="Go version badge" src="https://img.shields.io/github/go-mod/go-version/alteamc/minequery">
+    <a href="https://github.com/dreamscached/minequery/blob/v2/go.mod">
+        <img alt="Go version badge" src="https://img.shields.io/github/go-mod/go-version/dreamscached/minequery">
     </a>
-    <a href="https://github.com/alteamc/minequery/releases/latest">
-        <img alt="Latest release badge" src="https://img.shields.io/github/v/release/alteamc/minequery">
+    <a href="https://github.com/dreamscached/minequery/releases/latest">
+        <img alt="Latest release badge" src="https://img.shields.io/github/v/release/dreamscached/minequery">
     </a>
-    <a href="https://pkg.go.dev/github.com/alteamc/minequery/v2">
-        <img alt="Go reference badge" src="https://pkg.go.dev/badge/github.com/alteamc/minequery.svg">
+    <a href="https://pkg.go.dev/github.com/dreamscached/minequery/v2">
+        <img alt="Go reference badge" src="https://pkg.go.dev/badge/github.com/dreamscached/minequery.svg">
     </a>
-    <a href="https://github.com/alteamc/minequery/blob/v2/LICENSE">
-        <img alt="License badge" src="https://img.shields.io/github/license/alteamc/minequery">
+    <a href="https://github.com/dreamscached/minequery/blob/v2/LICENSE">
+        <img alt="License badge" src="https://img.shields.io/github/license/dreamscached/minequery">
     </a>
     <br/>
-    <a href="https://github.com/alteamc/minequery#readme">
+    <a href="https://github.com/dreamscached/minequery#readme">
         <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.8%20to%201.3%20%7C%201.4%20to%201.5%20%7C%201.6%20%7C%201.7%2B-brightgreen">
     </a>
     <a href="https://discord.gg/9ruheUG3Wg">
@@ -53,8 +53,20 @@ all previous version pings (e.g. 1.7+ server will respond to 1.6 ping, and so on
 
 Here's a quick example how to:
 
+#### Pinging (1.7+ servers)
+
 ```go
 res, err := minequery.Ping17("localhost", 25565)
+if err != nil { panic(err) }
+fmt.Println(res)
+```
+
+#### Querying
+
+```go
+res, err := minequery.QueryBasic("localhost", 25565)
+// ... or ...
+res, err := minequery.QueryFull("localhost", 25565)
 if err != nil { panic(err) }
 fmt.Println(res)
 ```
@@ -90,6 +102,15 @@ pinger.Ping16("localhost", 25565)
 pinger.Ping17("localhost", 25565)
 ```
 
+Or `Query*`:
+
+```go
+// Query basic stats
+res, err := pinger.QueryBasic("localhost", 25565)
+// Query full stats
+res, err := pinger.QueryFull("localhost", 25565)
+```
+
 #### WithTimeout
 
 By default, `Pinger` has 15-second timeout before connection aborts. If you need
@@ -119,7 +140,7 @@ a convenient set of constants you can use &mdash; see `Ping17ProtocolVersion*` c
 [3]: https://wiki.vg/Server_List_Ping#1.4_to_1.5
 [4]: https://wiki.vg/Server_List_Ping#1.6
 [5]: https://wiki.vg/Server_List_Ping#Current
-[6]: https://github.com/alteamc/minequery/issues/25
-[7]: https://pkg.go.dev/github.com/alteamc/minequery/v2
+[6]: https://github.com/dreamscached/minequery/issues/25
+[7]: https://pkg.go.dev/github.com/dreamscached/minequery/v2
 [8]: #basic-usage
 [9]: https://wiki.vg/Query
