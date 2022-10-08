@@ -56,6 +56,8 @@ Here's a quick example how to:
 #### Pinging (1.7+ servers)
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 res, err := minequery.Ping17("localhost", 25565)
 if err != nil { panic(err) }
 fmt.Println(res)
@@ -64,6 +66,8 @@ fmt.Println(res)
 #### Querying
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 res, err := minequery.QueryBasic("localhost", 25565)
 // ... or ...
 res, err := minequery.QueryFull("localhost", 25565)
@@ -81,6 +85,8 @@ For more advanced usage, such as setting custom timeout or enabling more strict
 response validation, you can use `Pinger` struct with `PingerOption` passed to it:
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 pinger := minequery.NewPinger(
 	minequery.WithTimeout(5 * time.Second), 
 	minequery.WithUseStrict(true),
@@ -92,6 +98,8 @@ pinger := minequery.NewPinger(
 Then, use `Ping*` functions on it the same way as described in [Basic usage][8] section:
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 // Ping Beta 1.8+
 pinger.PingBeta18("localhost", 25565)
 // Ping 1.4+
@@ -105,6 +113,8 @@ pinger.Ping17("localhost", 25565)
 Or `Query*`:
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 // Query basic stats
 res, err := pinger.QueryBasic("localhost", 25565)
 // Query full stats
