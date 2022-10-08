@@ -1654,7 +1654,8 @@ type status17JsonMapping struct {
 	Description Chat17 `json:"description"`
 	Favicon     string `json:"favicon,omitempty"`
 
-	PreviewsChat bool `json:"previewsChat,omitempty"`
+	PreviewsChat       bool `json:"previewsChat,omitempty"`
+	EnforcesSecureChat bool `json:"enforcesSecureChat,omitempty"`
 }
 
 // Status17 holds status response returned by 1.7+ Minecraft servers.
@@ -1722,6 +1723,7 @@ func (s *Status17) DescriptionText() string {
 }
 
 // Ping17 pings 1.7+ Minecraft servers.
+//
 //goland:noinspection GoUnusedExportedFunction
 func Ping17(host string, port int) (*Status17, error) {
 	return defaultPinger.Ping17(host, port)
