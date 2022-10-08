@@ -5,6 +5,10 @@ versions of it may introduce changes that might be breaking to existing codebase
 
 This page will help you migrate your code in order to adapt to changes.
 
+## From v2.2.0
+
+Version 2.2.1 introduces `EnforcesSecureChat` field in `Status17`.
+
 ## From v2.0.x
 
 Version 2.1.0 has moved from value parameters, receivers and return values to pointers.
