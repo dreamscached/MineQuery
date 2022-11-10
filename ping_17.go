@@ -1667,9 +1667,11 @@ type Status17 struct {
 	MaxPlayers    int
 	SamplePlayers []PlayerEntry17
 
-	Description  Chat17
-	Icon         image.Image
-	PreviewsChat bool
+	Description Chat17
+	Icon        image.Image
+
+	PreviewsChat       bool
+	EnforcesSecureChat bool
 }
 
 // DescriptionText collects text components of Description together into normal string.
@@ -1876,12 +1878,13 @@ func (p *Pinger) ping17ParseStatusResponsePayload(payload []byte) (*Status17, er
 
 	// Map raw status object to response struct (just these parts that can be converted right here)
 	status := &Status17{
-		VersionName:     statusMapping.Version.Name,
-		ProtocolVersion: statusMapping.Version.Protocol,
-		OnlinePlayers:   statusMapping.Players.Online,
-		MaxPlayers:      statusMapping.Players.Max,
-		Description:     statusMapping.Description,
-		PreviewsChat:    statusMapping.PreviewsChat,
+		VersionName:        statusMapping.Version.Name,
+		ProtocolVersion:    statusMapping.Version.Protocol,
+		OnlinePlayers:      statusMapping.Players.Online,
+		MaxPlayers:         statusMapping.Players.Max,
+		Description:        statusMapping.Description,
+		PreviewsChat:       statusMapping.PreviewsChat,
+		EnforcesSecureChat: statusMapping.EnforcesSecureChat,
 	}
 
 	// Process players sample (optionally, if UseStrict, returning on tolerable errors)
