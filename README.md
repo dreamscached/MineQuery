@@ -22,7 +22,7 @@
     </a>
 </p>
 
-# 🚀 Migrating from v2.0.x or v1
+# 🚀 Migrating from v2 or v1
 
 If you're new to MineQuery, you can skip this part. If you have used it before, you
 might want to give it a read if you're planning to switch from v1 or v2.0.x.
