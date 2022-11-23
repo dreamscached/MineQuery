@@ -54,10 +54,17 @@ func WithProtocolVersion17(version int32) PingerOption {
 	}
 }
 
-// WithCacheExpiry sets Pinger Cache expiry and purge duration values.
-func WithCacheExpiry(expire, purge time.Duration) PingerOption {
+// WithQueryCacheExpiry sets Pinger Cache expiry and purge duration values.
+func WithQueryCacheExpiry(expire, purge time.Duration) PingerOption {
 	return func(p *Pinger) {
 		p.SessionCache = cache.New(expire, purge)
+	}
+}
+
+// WithQueryCacheDisabled disables Pinger cache used for server query.
+func WithQueryCacheDisabled() PingerOption {
+	return func(p *Pinger) {
+		p.SessionCache = nil
 	}
 }
 

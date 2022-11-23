@@ -78,6 +78,7 @@ func QueryBasic(host string, port int) (*BasicQueryStatus, error) {
 //
 //goland:noinspection GoUnusedExportedFunction
 func (p *Pinger) QueryBasic(host string, port int) (*BasicQueryStatus, error) {
+	// Try to use cache first.
 	sessionData, hit := p.getCachedSession(host, port)
 	if hit {
 		// Open UDP connection with predefined local address from cache.
@@ -129,6 +130,7 @@ func QueryFull(host string, port int) (*FullQueryStatus, error) {
 //
 //goland:noinspection GoUnusedExportedFunction
 func (p *Pinger) QueryFull(host string, port int) (*FullQueryStatus, error) {
+	// Try to use cache first.
 	sessionData, hit := p.getCachedSession(host, port)
 	if hit {
 		// Open UDP connection with predefined local address from cache.
@@ -199,7 +201,7 @@ func (p *Pinger) requestFullStat(conn *net.UDPConn, session session) (*FullQuery
 
 type session struct {
 	SessionID, Token int32
-	Address          *net.UDPAddr
+	Address          string
 }
 
 func getSessionCacheKey(host string, port int) string { return fmt.Sprintf("%s:%d", host, port) }
@@ -224,12 +226,18 @@ func (p *Pinger) createAndCacheSession(port int, host string, conn *net.UDPConn)
 		return session{}, err
 	}
 
-	sessionData := session{sessionID, token, conn.LocalAddr().(*net.UDPAddr)}
-	p.SessionCache.SetDefault(getSessionCacheKey(host, port), sessionData)
+	sessionData := session{sessionID, token, conn.LocalAddr().String()}
+	if p.SessionCache != nil {
+		p.SessionCache.SetDefault(getSessionCacheKey(host, port), sessionData)
+	}
 	return sessionData, nil
 }
 
 func (p *Pinger) getCachedSession(host string, port int) (session, bool) {
+	if p.SessionCache == nil {
+		return session{}, false
+	}
+
 	key := getSessionCacheKey(host, port)
 	data, hit := p.SessionCache.Get(key)
 	if !hit {

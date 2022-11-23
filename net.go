@@ -37,12 +37,16 @@ func (p *Pinger) openUDPConn(host string, port int) (*net.UDPConn, error) {
 	return conn, nil
 }
 
-func (p *Pinger) openUDPConnWithLocalAddr(host string, remotePort int, localAddr *net.UDPAddr) (*net.UDPConn, error) {
+func (p *Pinger) openUDPConnWithLocalAddr(host string, remotePort int, localAddr string) (*net.UDPConn, error) {
+	lAddrObj, err := net.ResolveUDPAddr("udp", localAddr)
+	if err != nil {
+		return nil, err
+	}
 	addr, err := net.ResolveUDPAddr("udp", toAddrString(host, remotePort))
 	if err != nil {
 		return nil, err
 	}
-	conn, err := net.DialUDP("udp", localAddr, addr)
+	conn, err := net.DialUDP("udp", lAddrObj, addr)
 	if err != nil {
 		return nil, err
 	}
