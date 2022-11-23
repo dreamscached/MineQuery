@@ -133,6 +133,18 @@ omits erroneous values it processes (incorrect favicon or bad player UUID).
 If you need it to return an error in case of invalid response, you can use 
 `WithUseStrict` option.
 
+#### WithQueryCacheExpiry
+
+By default, `Pinger` stores query sessions in cache for 30 seconds and flushes expired 
+entries every 5 minutes. If you want to override these defaults, use `WithQueryCacheExpiry` 
+option.
+
+#### WithQueryCacheDisabled
+
+By default, `Pinger` stores query sessions in cache, reusing sessions and security tokens
+and saving bandwidth. If you don't want to use session cache, use `WithQueryCacheDisabled`
+option.
+
 #### WithProtocolVersion16
 
 By default, `Pinger` sends protocol version 74 in 1.6 ping packets. If you need
