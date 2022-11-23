@@ -68,28 +68,51 @@ type FullQueryStatus struct {
 }
 
 // QueryBasic queries Minecraft servers and returns simplified query response.
+//
 //goland:noinspection GoUnusedExportedFunction
 func QueryBasic(host string, port int) (*BasicQueryStatus, error) {
 	return defaultPinger.QueryBasic(host, port)
 }
 
 // QueryBasic queries Minecraft servers and returns simplified query response.
+//
 //goland:noinspection GoUnusedExportedFunction
 func (p *Pinger) QueryBasic(host string, port int) (*BasicQueryStatus, error) {
+	// Try to use cache first.
+	sessionData, hit := p.getCachedSession(host, port)
+	if hit {
+		// Open UDP connection with predefined local address from cache.
+		conn, err := p.openUDPConnWithLocalAddr(host, port, sessionData.Address)
+		if err != nil {
+			return nil, err
+		}
+
+		// Request basic query info with cached session.
+		res, err := p.requestBasicStat(conn, sessionData)
+		if err == nil {
+			_ = conn.Close()
+			return res, nil
+		}
+
+		_ = conn.Close()
+		// On error, fall back to creating a new session.
+	}
+
+	// Open UDP connection.
 	conn, err := p.openUDPConn(host, port)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = conn.Close() }()
 
-	// Create session and obtain challenge token
-	sessionID, token, err := p.createSession(conn)
+	// Create a new session and obtain challenge token.
+	sessionData, err = p.createAndCacheSession(port, host, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	// Request basic query info with newly created session
-	res, err := p.requestBasicStat(conn, sessionID, token)
+	// Request basic query info with newly created session.
+	res, err := p.requestBasicStat(conn, sessionData)
 	if err != nil {
 		return nil, err
 	}
@@ -97,62 +120,63 @@ func (p *Pinger) QueryBasic(host string, port int) (*BasicQueryStatus, error) {
 }
 
 // QueryFull queries Minecraft servers and returns full query response.
+//
 //goland:noinspection GoUnusedExportedFunction
 func QueryFull(host string, port int) (*FullQueryStatus, error) {
 	return defaultPinger.QueryFull(host, port)
 }
 
 // QueryFull queries Minecraft servers and returns full query response.
+//
 //goland:noinspection GoUnusedExportedFunction
 func (p *Pinger) QueryFull(host string, port int) (*FullQueryStatus, error) {
+	// Try to use cache first.
+	sessionData, hit := p.getCachedSession(host, port)
+	if hit {
+		// Open UDP connection with predefined local address from cache.
+		conn, err := p.openUDPConnWithLocalAddr(host, port, sessionData.Address)
+		if err != nil {
+			return nil, err
+		}
+
+		// Request full query info with cached session.
+		res, err := p.requestFullStat(conn, sessionData)
+		if err == nil {
+			_ = conn.Close()
+			return res, nil
+		}
+
+		_ = conn.Close()
+		// On error, fall back to creating a new session.
+	}
+
+	// Open UDP connection.
 	conn, err := p.openUDPConn(host, port)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = conn.Close() }()
 
-	// Create session and obtain challenge token
-	sessionID, token, err := p.createSession(conn)
+	// Create a new session and obtain challenge token.
+	sessionData, err = p.createAndCacheSession(port, host, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	// Request full query info with newly created session
-	res, err := p.requestFullStat(conn, sessionID, token)
+	// Request full query info with newly created session.
+	res, err := p.requestFullStat(conn, sessionData)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (p *Pinger) createSession(conn *net.UDPConn) (int32, int32, error) {
-	// Generate new time-based session ID and write a handshake packet
-	sessionID := generateSessionID()
-	if err := p.writeQueryHandshakePacket(conn, sessionID); err != nil {
-		return 0, 0, err
-	}
-
-	// Read response packet and get data stream
-	content, err := p.readQueryHandshakeResponsePacket(conn, sessionID)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	// Parse response and obtain challenge token
-	token, err := p.parseQueryHandshakeResponse(content)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	return sessionID, token, nil
-}
-
-func (p *Pinger) requestBasicStat(conn *net.UDPConn, sessionID int32, token int32) (*BasicQueryStatus, error) {
-	if err := p.writeQueryBasicStatPacket(conn, sessionID, token); err != nil {
+func (p *Pinger) requestBasicStat(conn *net.UDPConn, session session) (*BasicQueryStatus, error) {
+	if err := p.writeQueryBasicStatPacket(conn, session.SessionID, session.Token); err != nil {
 		return nil, err
 	}
 
-	content, err := p.readQueryStatResponsePacket(conn, sessionID)
+	content, err := p.readQueryStatResponsePacket(conn, session.SessionID)
 	if err != nil {
 		return nil, err
 	}
@@ -160,17 +184,68 @@ func (p *Pinger) requestBasicStat(conn *net.UDPConn, sessionID int32, token int3
 	return p.parseQueryBasicStatResponse(content)
 }
 
-func (p *Pinger) requestFullStat(conn *net.UDPConn, sessionID int32, token int32) (*FullQueryStatus, error) {
-	if err := p.writeQueryFullStatPacket(conn, sessionID, token); err != nil {
+func (p *Pinger) requestFullStat(conn *net.UDPConn, session session) (*FullQueryStatus, error) {
+	if err := p.writeQueryFullStatPacket(conn, session.SessionID, session.Token); err != nil {
 		return nil, err
 	}
 
-	content, err := p.readQueryStatResponsePacket(conn, sessionID)
+	content, err := p.readQueryStatResponsePacket(conn, session.SessionID)
 	if err != nil {
 		return nil, err
 	}
 
 	return p.parseQueryFullStatResponse(content)
+}
+
+// Session management
+
+type session struct {
+	SessionID, Token int32
+	Address          string
+}
+
+func getSessionCacheKey(host string, port int) string { return fmt.Sprintf("%s:%d", host, port) }
+func generateSessionID() int32                        { return int32(time.Now().Unix()) & querySessionIDMask }
+
+func (p *Pinger) createAndCacheSession(port int, host string, conn *net.UDPConn) (session, error) {
+	// Generate new time-based session ID and write a handshake packet
+	sessionID := generateSessionID()
+	if err := p.writeQueryHandshakePacket(conn, sessionID); err != nil {
+		return session{}, err
+	}
+
+	// Read response packet and get data stream
+	content, err := p.readQueryHandshakeResponsePacket(conn, sessionID)
+	if err != nil {
+		return session{}, err
+	}
+
+	// Parse response and obtain challenge token
+	token, err := p.parseQueryHandshakeResponse(content)
+	if err != nil {
+		return session{}, err
+	}
+
+	sessionData := session{sessionID, token, conn.LocalAddr().String()}
+	if p.SessionCache != nil {
+		p.SessionCache.SetDefault(getSessionCacheKey(host, port), sessionData)
+	}
+	return sessionData, nil
+}
+
+func (p *Pinger) getCachedSession(host string, port int) (session, bool) {
+	if p.SessionCache == nil {
+		return session{}, false
+	}
+
+	key := getSessionCacheKey(host, port)
+	data, hit := p.SessionCache.Get(key)
+	if !hit {
+		return session{}, false
+	}
+
+	sessionData := data.(session)
+	return sessionData, true
 }
 
 // Communication
@@ -579,7 +654,3 @@ func queryGetFullStatField(fields map[string]string, key string) (string, error)
 	delete(fields, key)
 	return value, nil
 }
-
-// Util
-
-func generateSessionID() int32 { return int32(time.Now().Unix()) & querySessionIDMask }

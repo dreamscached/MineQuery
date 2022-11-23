@@ -5,6 +5,12 @@ versions of it may introduce changes that might be breaking to existing codebase
 
 This page will help you migrate your code in order to adapt to changes.
 
+## From v2.2.x
+
+Version 2.3.0 enables query session caching by default. If you need to stick to 
+pre-2.3.x behavior, use `WithQueryCacheDisabled` option when creating new `Pinger`
+instance.
+
 ## From v2.2.0
 
 Version 2.2.1 introduces `EnforcesSecureChat` field in `Status17`.
