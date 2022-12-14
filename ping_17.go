@@ -1654,7 +1654,8 @@ type status17JsonMapping struct {
 	Description Chat17 `json:"description"`
 	Favicon     string `json:"favicon,omitempty"`
 
-	PreviewsChat bool `json:"previewsChat,omitempty"`
+	PreviewsChat       bool `json:"previewsChat,omitempty"`
+	EnforcesSecureChat bool `json:"enforcesSecureChat,omitempty"`
 }
 
 // Status17 holds status response returned by 1.7+ Minecraft servers.
@@ -1666,9 +1667,11 @@ type Status17 struct {
 	MaxPlayers    int
 	SamplePlayers []PlayerEntry17
 
-	Description  Chat17
-	Icon         image.Image
-	PreviewsChat bool
+	Description Chat17
+	Icon        image.Image
+
+	PreviewsChat       bool
+	EnforcesSecureChat bool
 }
 
 // DescriptionText collects text components of Description together into normal string.
@@ -1722,6 +1725,7 @@ func (s *Status17) DescriptionText() string {
 }
 
 // Ping17 pings 1.7+ Minecraft servers.
+//
 //goland:noinspection GoUnusedExportedFunction
 func Ping17(host string, port int) (*Status17, error) {
 	return defaultPinger.Ping17(host, port)
@@ -1874,12 +1878,13 @@ func (p *Pinger) ping17ParseStatusResponsePayload(payload []byte) (*Status17, er
 
 	// Map raw status object to response struct (just these parts that can be converted right here)
 	status := &Status17{
-		VersionName:     statusMapping.Version.Name,
-		ProtocolVersion: statusMapping.Version.Protocol,
-		OnlinePlayers:   statusMapping.Players.Online,
-		MaxPlayers:      statusMapping.Players.Max,
-		Description:     statusMapping.Description,
-		PreviewsChat:    statusMapping.PreviewsChat,
+		VersionName:        statusMapping.Version.Name,
+		ProtocolVersion:    statusMapping.Version.Protocol,
+		OnlinePlayers:      statusMapping.Players.Online,
+		MaxPlayers:         statusMapping.Players.Max,
+		Description:        statusMapping.Description,
+		PreviewsChat:       statusMapping.PreviewsChat,
+		EnforcesSecureChat: statusMapping.EnforcesSecureChat,
 	}
 
 	// Process players sample (optionally, if UseStrict, returning on tolerable errors)

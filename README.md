@@ -17,12 +17,9 @@
     <a href="https://github.com/dreamscached/minequery#readme">
         <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.8%20to%201.3%20%7C%201.4%20to%201.5%20%7C%201.6%20%7C%201.7%2B-brightgreen">
     </a>
-    <a href="https://discord.gg/9ruheUG3Wg">
-        <img alt="Discord server badge" src="https://discordapp.com/api/guilds/929337829610369095/widget.png?style=shield">
-    </a>
 </p>
 
-# 🚀 Migrating from v2.0.x or v1
+# 🚀 Migrating from v2 or v1
 
 If you're new to MineQuery, you can skip this part. If you have used it before, you
 might want to give it a read if you're planning to switch from v1 or v2.0.x.
@@ -56,6 +53,8 @@ Here's a quick example how to:
 #### Pinging (1.7+ servers)
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 res, err := minequery.Ping17("localhost", 25565)
 if err != nil { panic(err) }
 fmt.Println(res)
@@ -64,6 +63,8 @@ fmt.Println(res)
 #### Querying
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 res, err := minequery.QueryBasic("localhost", 25565)
 // ... or ...
 res, err := minequery.QueryFull("localhost", 25565)
@@ -81,6 +82,8 @@ For more advanced usage, such as setting custom timeout or enabling more strict
 response validation, you can use `Pinger` struct with `PingerOption` passed to it:
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 pinger := minequery.NewPinger(
 	minequery.WithTimeout(5 * time.Second), 
 	minequery.WithUseStrict(true),
@@ -92,6 +95,8 @@ pinger := minequery.NewPinger(
 Then, use `Ping*` functions on it the same way as described in [Basic usage][8] section:
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 // Ping Beta 1.8+
 pinger.PingBeta18("localhost", 25565)
 // Ping 1.4+
@@ -105,6 +110,8 @@ pinger.Ping17("localhost", 25565)
 Or `Query*`:
 
 ```go
+import "github.com/dreamscached/minequery/v2"
+
 // Query basic stats
 res, err := pinger.QueryBasic("localhost", 25565)
 // Query full stats
@@ -122,6 +129,18 @@ By default, `Pinger` does not validate response data it receives and silently
 omits erroneous values it processes (incorrect favicon or bad player UUID).
 If you need it to return an error in case of invalid response, you can use 
 `WithUseStrict` option.
+
+#### WithQueryCacheExpiry
+
+By default, `Pinger` stores query sessions in cache for 30 seconds and flushes expired 
+entries every 5 minutes. If you want to override these defaults, use `WithQueryCacheExpiry` 
+option.
+
+#### WithQueryCacheDisabled
+
+By default, `Pinger` stores query sessions in cache, reusing sessions and security tokens
+and saving bandwidth. If you don't want to use session cache, use `WithQueryCacheDisabled`
+option.
 
 #### WithProtocolVersion16
 
