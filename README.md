@@ -17,9 +17,6 @@
     <a href="https://github.com/dreamscached/minequery#readme">
         <img alt="Minecraft version support badge" src="https://img.shields.io/badge/minecraft%20version-Beta%201.8%20to%201.3%20%7C%201.4%20to%201.5%20%7C%201.6%20%7C%201.7%2B-brightgreen">
     </a>
-    <a href="https://dcache.me/discord">
-        <img alt="Discord server badge" src="https://discordapp.com/api/guilds/1029849988953546802/widget.png?style=shield">
-    </a>
 </p>
 
 # 🚀 Migrating from v2 or v1
