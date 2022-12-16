@@ -1632,55 +1632,19 @@ type PlayerEntry17 struct {
 	UUID     uuid.UUID
 }
 
-// Chat17 holds arbitrary Chat data decoded from JSON. Currently untyped and unmapped to struct,
-// however, this might change in future versions.
-type Chat17 interface{}
+// Chat17 holds arbitrary Chat data decoded from JSON and can be converted to string
+// by decoding chat component JSON.
+type Chat17 interface{ fmt.Stringer }
+type chat17 struct{ Component interface{} }
 
-type status17JsonMapping struct {
-	Version struct {
-		Name     string `json:"name"`
-		Protocol int    `json:"protocol"`
-	} `json:"version"`
+func newChat17(component interface{}) *chat17 { return &chat17{component} }
 
-	Players struct {
-		Max    int `json:"max"`
-		Online int `json:"online"`
-		Sample []struct {
-			Name string `json:"name"`
-			ID   string `json:"id"`
-		} `json:"sample"`
-	} `json:"players"`
-
-	Description Chat17 `json:"description"`
-	Favicon     string `json:"favicon,omitempty"`
-
-	PreviewsChat       bool `json:"previewsChat,omitempty"`
-	EnforcesSecureChat bool `json:"enforcesSecureChat,omitempty"`
-}
-
-// Status17 holds status response returned by 1.7+ Minecraft servers.
-type Status17 struct {
-	VersionName     string
-	ProtocolVersion int
-
-	OnlinePlayers int
-	MaxPlayers    int
-	SamplePlayers []PlayerEntry17
-
-	Description Chat17
-	Icon        image.Image
-
-	PreviewsChat       bool
-	EnforcesSecureChat bool
-}
-
-// DescriptionText collects text components of Description together into normal string.
-func (s *Status17) DescriptionText() string {
+func (c *chat17) String() string {
 	componentStack := make(stack, 0, 8)
 	buffer := bytes.NewBuffer(make([]byte, 0, 128))
 
 	// Push root component to stack, whatever it is (a slice, a map or a string)
-	componentStack.Push(s.Description)
+	componentStack.Push(c.Component)
 
 	for len(componentStack) > 0 {
 		// Remove topmost element from stack and get it for processing
@@ -1723,6 +1687,50 @@ func (s *Status17) DescriptionText() string {
 
 	return buffer.String()
 }
+
+type status17JsonMapping struct {
+	Version struct {
+		Name     string `json:"name"`
+		Protocol int    `json:"protocol"`
+	} `json:"version"`
+
+	Players struct {
+		Max    int `json:"max"`
+		Online int `json:"online"`
+		Sample []struct {
+			Name string `json:"name"`
+			ID   string `json:"id"`
+		} `json:"sample"`
+	} `json:"players"`
+
+	Description interface{} `json:"description"`
+	Favicon     string      `json:"favicon,omitempty"`
+
+	PreviewsChat       bool `json:"previewsChat,omitempty"`
+	EnforcesSecureChat bool `json:"enforcesSecureChat,omitempty"`
+}
+
+// Status17 holds status response returned by 1.7+ Minecraft servers.
+type Status17 struct {
+	VersionName     string
+	ProtocolVersion int
+
+	OnlinePlayers int
+	MaxPlayers    int
+	SamplePlayers []PlayerEntry17
+
+	Description Chat17
+	Icon        image.Image
+
+	PreviewsChat       bool
+	EnforcesSecureChat bool
+}
+
+// DescriptionText collects text components of Description together into normal string.
+//
+// Deprecated: this function is deprecated and is retained for compatibility. Newer software
+// should use String function on Description implementing Chat17 interface instead.
+func (s *Status17) DescriptionText() string { return s.Description.String() }
 
 // Ping17 pings 1.7+ Minecraft servers.
 //
@@ -1882,7 +1890,7 @@ func (p *Pinger) ping17ParseStatusResponsePayload(payload []byte) (*Status17, er
 		ProtocolVersion:    statusMapping.Version.Protocol,
 		OnlinePlayers:      statusMapping.Players.Online,
 		MaxPlayers:         statusMapping.Players.Max,
-		Description:        statusMapping.Description,
+		Description:        newChat17(statusMapping.Description),
 		PreviewsChat:       statusMapping.PreviewsChat,
 		EnforcesSecureChat: statusMapping.EnforcesSecureChat,
 	}
