@@ -19,11 +19,11 @@ func (s *stack) Pop() (interface{}, error) {
 	return ret, nil
 }
 
-// minInt returns least of two of the passed integer numbers.
-func minInt(a int, b int) int {
+// maxInt returns greatest of two of the passed integer numbers.
+func maxInt(a int, b int) int {
 	if a < b {
-		return a
-	} else {
 		return b
+	} else {
+		return a
 	}
 }
