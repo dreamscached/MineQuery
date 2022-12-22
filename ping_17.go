@@ -1838,7 +1838,7 @@ func (p *Pinger) ping17ReadStatusResponsePacketPayload(reader io.Reader) ([]byte
 
 	// Read entire packet to a buffer
 	pb := bytes.NewBuffer(make([]byte, 0, pl))
-	pb.Write(lb[ln-lr.Len() : ln])
+	pb.Write(lb[minInt(ln-lr.Len(), 0):ln])
 	if _, err = io.CopyN(pb, reader, int64(pl)-int64(lr.Len())); err != nil {
 		return nil, err
 	}
