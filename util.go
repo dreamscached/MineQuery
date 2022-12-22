@@ -18,3 +18,12 @@ func (s *stack) Pop() (interface{}, error) {
 	*s = (*s)[0 : len(*s)-1]
 	return ret, nil
 }
+
+// maxInt returns greatest of two of the passed integer numbers.
+func maxInt(a int, b int) int {
+	if a < b {
+		return b
+	} else {
+		return a
+	}
+}
