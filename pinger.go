@@ -121,10 +121,10 @@ func newDefaultPinger() *Pinger {
 	p := &Pinger{}
 
 	// Apply default configuration
-	WithDialer(&net.Dialer{})
-	WithQueryCacheExpiry(30*time.Second, 5*time.Minute)
+	WithDialer(&net.Dialer{})(p)
+	WithQueryCacheExpiry(30*time.Second, 5*time.Minute)(p)
 	WithTimeout(15 * time.Second)(p)
-	WithUnmarshaller(json.Unmarshal)
+	WithUnmarshaller(json.Unmarshal)(p)
 
 	return p
 }
