@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"image"
 	"image/png"
@@ -1880,7 +1879,7 @@ func (p *Pinger) ping17ReadStatusResponsePacketPayload(reader io.Reader) ([]byte
 func (p *Pinger) ping17ParseStatusResponsePayload(payload []byte) (*Status17, error) {
 	// Parse JSON to struct
 	var statusMapping status17JsonMapping
-	if err := json.Unmarshal(payload, &statusMapping); err != nil {
+	if err := p.UnmarshalFunc(payload, &statusMapping); err != nil {
 		return nil, err
 	}
 

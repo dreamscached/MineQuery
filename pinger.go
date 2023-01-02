@@ -1,6 +1,7 @@
 package minequery
 
 import (
+	"encoding/json"
 	"net"
 	"time"
 
@@ -72,9 +73,18 @@ func WithQueryCacheDisabled() PingerOption {
 	}
 }
 
+// WithUnmarshaller sets JSON unmarshalling function used for unmarshalling 1.7+ responses.
+//
+//goland:noinspection GoUnusedExportedFunction
+func WithUnmarshaller(fn UnmarshalFunc) PingerOption {
+	return func(p *Pinger) {
+		p.UnmarshalFunc = fn
+	}
+}
+
 // defaultPinger is a default (zero-value) Pinger used in functions
 // that don't have Pinger as receiver. The default Pinger has timeout set to 15 seconds.
-var defaultPinger = NewPinger(WithTimeout(15 * time.Second))
+var defaultPinger = NewPinger()
 
 // Pinger contains options to ping and query Minecraft servers.
 type Pinger struct {
@@ -91,6 +101,10 @@ type Pinger struct {
 	// that are by default silently ignored should be actually returned as errors.
 	UseStrict bool
 
+	// UnmarshalFunc is the function used to unmarshal JSON (used by Ping17 for responses from 1.7+ servers).
+	// By default, it uses json.Unmarshal function.
+	UnmarshalFunc UnmarshalFunc
+
 	// ProtocolVersion16 is protocol version to use when pinging with Ping16 function.
 	// By default, Ping16ProtocolVersion162 (=74) will be used.
 	// See ping_16.go for full list of built-in constants.
@@ -102,13 +116,22 @@ type Pinger struct {
 	ProtocolVersion17 int32
 }
 
+func newDefaultPinger() *Pinger {
+	// Create struct with default parameters.
+	p := &Pinger{}
+
+	// Apply default configuration
+	WithDialer(&net.Dialer{})
+	WithQueryCacheExpiry(30*time.Second, 5*time.Minute)
+	WithTimeout(15 * time.Second)(p)
+	WithUnmarshaller(json.Unmarshal)
+
+	return p
+}
+
 // NewPinger constructs new Pinger instance optionally with additional options.
 func NewPinger(options ...PingerOption) *Pinger {
-	pinger := &Pinger{
-		Dialer:       &net.Dialer{},
-		SessionCache: cache.New(30*time.Second, 5*time.Minute),
-	}
-
+	pinger := newDefaultPinger()
 	for _, configure := range options {
 		configure(pinger)
 	}

@@ -27,3 +27,6 @@ func maxInt(a int, b int) int {
 		return a
 	}
 }
+
+// UnmarshalFunc is a function that conforms to json.Unmarshal function signature.
+type UnmarshalFunc func([]byte, interface{}) error
