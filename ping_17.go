@@ -2,11 +2,9 @@ package minequery
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/binary"
 	"fmt"
 	"image"
-	"image/png"
 	"io"
 	"strings"
 
@@ -1918,13 +1916,13 @@ func (p *Pinger) ping17ParseStatusResponsePayload(payload []byte) (*Status17, er
 			}
 		} else {
 			// Decode Base64 string from favicon data URL
-			pngData, err := base64.StdEncoding.DecodeString(statusMapping.Favicon[len(ping17StatusImagePrefix):])
+			pngData, err := p.ImageEncoding.DecodeString(statusMapping.Favicon[len(ping17StatusImagePrefix):])
 			if err != nil {
 				return nil, fmt.Errorf("%w: invalid favicon image: %s", ErrInvalidStatus, err)
 			}
 
 			// Decode PNG image from binary data
-			status.Icon, err = png.Decode(bytes.NewReader(pngData))
+			status.Icon, err = p.ImageDecodeFunc(bytes.NewReader(pngData))
 			if err != nil {
 				return nil, fmt.Errorf("%w: invalid favicon image: %s", ErrInvalidStatus, err)
 			}
