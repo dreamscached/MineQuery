@@ -1,7 +1,9 @@
 package minequery
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"image/png"
 	"net"
 	"time"
 
@@ -82,6 +84,24 @@ func WithUnmarshaller(fn UnmarshalFunc) PingerOption {
 	}
 }
 
+// WithImageDecoder sets PNG decoding function used for decoding 1.7+ response favicons.
+//
+//goland:noinspection GoUnusedExportedFunction
+func WithImageDecoder(fn ImageDecodeFunc) PingerOption {
+	return func(p *Pinger) {
+		p.ImageDecodeFunc = fn
+	}
+}
+
+// WithImageEncoding sets Base64 encoding used for decoding 1.7+ response favicon Base64-encoded data.
+//
+//goland:noinspection GoUnusedExportedFunction
+func WithImageEncoding(coding *base64.Encoding) PingerOption {
+	return func(p *Pinger) {
+		p.ImageEncoding = coding
+	}
+}
+
 // defaultPinger is a default (zero-value) Pinger used in functions
 // that don't have Pinger as receiver. The default Pinger has timeout set to 15 seconds.
 var defaultPinger = NewPinger()
@@ -105,6 +125,13 @@ type Pinger struct {
 	// By default, it uses json.Unmarshal function.
 	UnmarshalFunc UnmarshalFunc
 
+	// ImageDecodeFunc is the function used to decode PNG. It is provided with binary stream decoded from
+	// Base64-encoded string in server status.
+	ImageDecodeFunc ImageDecodeFunc
+
+	// ImageEncoding is the encoding used in PNG favicon decoding process.
+	ImageEncoding *base64.Encoding
+
 	// ProtocolVersion16 is protocol version to use when pinging with Ping16 function.
 	// By default, Ping16ProtocolVersion162 (=74) will be used.
 	// See ping_16.go for full list of built-in constants.
@@ -125,6 +152,8 @@ func newDefaultPinger() *Pinger {
 	WithQueryCacheExpiry(30*time.Second, 5*time.Minute)(p)
 	WithTimeout(15 * time.Second)(p)
 	WithUnmarshaller(json.Unmarshal)(p)
+	WithImageEncoding(base64.StdEncoding)(p)
+	WithImageDecoder(png.Decode)(p)
 
 	return p
 }

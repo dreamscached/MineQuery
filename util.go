@@ -2,6 +2,8 @@ package minequery
 
 import (
 	"errors"
+	"image"
+	"io"
 )
 
 var errStackEmpty = errors.New("stack is empty")
@@ -30,3 +32,6 @@ func maxInt(a int, b int) int {
 
 // UnmarshalFunc is a function that conforms to json.Unmarshal function signature.
 type UnmarshalFunc func([]byte, interface{}) error
+
+// ImageDecodeFunc is a function that conforms to png.Decode function signature.
+type ImageDecodeFunc func(io.Reader) (image.Image, error)
