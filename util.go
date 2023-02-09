@@ -4,6 +4,8 @@ import (
 	"errors"
 	"image"
 	"io"
+	"regexp"
+	"strings"
 )
 
 var errStackEmpty = errors.New("stack is empty")
@@ -35,3 +37,13 @@ type UnmarshalFunc func([]byte, interface{}) error
 
 // ImageDecodeFunc is a function that conforms to png.Decode function signature.
 type ImageDecodeFunc func(io.Reader) (image.Image, error)
+
+// naturalizeMOTD 'naturalizes' MOTD (or since 1.7+, description) strings and turns them
+// into one-line, stripped of any formatting strings. Newlines are replaced with spaces and
+// legacy §-formatting is omitted.
+func naturalizeMOTD(s string) string {
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = regexp.MustCompile("\u00a7[a-f0-9k-or]").ReplaceAllString(s, "")
+	s = strings.TrimSpace(s)
+	return s
+}
