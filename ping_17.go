@@ -1723,6 +1723,13 @@ type Status17 struct {
 	EnforcesSecureChat bool
 }
 
+// String returns a user-friendly representation of a server status response.
+// It contains Minecraft Server version, protocol version number, online count and naturalized MOTD.
+func (s *Status17) String() string {
+	return fmt.Sprintf("Minecraft Server (1.7+, %s, protocol version %d), %d/%d players online, description:\n%s",
+		s.VersionName, s.ProtocolVersion, s.OnlinePlayers, s.MaxPlayers, naturalizeMOTD(s.Description.String()))
+}
+
 // DescriptionText collects text components of Description together into normal string.
 //
 // Deprecated: this function is deprecated and is retained for compatibility. Newer software
