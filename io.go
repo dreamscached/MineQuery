@@ -33,3 +33,24 @@ func readAllUntilZero(reader io.ByteReader) ([]byte, error) {
 		}
 	}
 }
+
+// readAll reads all bytes from reader.
+// This is a backport from newer Go stdlib for sake of minequery's compatibility with Go 1.13.
+func readAll(r io.Reader) ([]byte, error) {
+	b := make([]byte, 0, 512)
+	for {
+		n, err := r.Read(b[len(b):cap(b)])
+		b = b[:len(b)+n]
+		if err != nil {
+			if err == io.EOF {
+				err = nil
+			}
+			return b, err
+		}
+
+		if len(b) == cap(b) {
+			// Add more capacity (let append pick how much).
+			b = append(b, 0)[:len(b)]
+		}
+	}
+}
