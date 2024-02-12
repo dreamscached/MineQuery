@@ -39,6 +39,15 @@ func WithUseStrict(useStrict bool) PingerOption {
 	return func(p *Pinger) { p.UseStrict = useStrict }
 }
 
+// WithPreferSRVRecord sets Pinger PreferSRVRecord to the provided value.
+//
+//goland:noinspection GoUnusedExportedFunction
+func WithPreferSRVRecord(preferSRV bool) PingerOption {
+	return func(p *Pinger) {
+		p.PreferSRVRecord = preferSRV
+	}
+}
+
 // WithProtocolVersion16 sets Pinger ProtocolVersion16 value.
 //
 //goland:noinspection GoUnusedExportedFunction
@@ -121,6 +130,10 @@ type Pinger struct {
 	// that are by default silently ignored should be actually returned as errors.
 	UseStrict bool
 
+	// PreferSRVRecord is a configuration value that defines if Pinger will prefer SRV records, which is the
+	// default behavior of Minecraft clients.
+	PreferSRVRecord bool
+
 	// UnmarshalFunc is the function used to unmarshal JSON (used by Ping17 for responses from 1.7+ servers).
 	// By default, it uses json.Unmarshal function.
 	UnmarshalFunc UnmarshalFunc
@@ -151,6 +164,7 @@ func newDefaultPinger() *Pinger {
 	WithDialer(&net.Dialer{})(p)
 	WithQueryCacheExpiry(30*time.Second, 5*time.Minute)(p)
 	WithTimeout(15 * time.Second)(p)
+	WithPreferSRVRecord(true)(p)
 	WithUnmarshaller(json.Unmarshal)(p)
 	WithImageEncoding(base64.StdEncoding)(p)
 	WithImageDecoder(png.Decode)(p)
