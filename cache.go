@@ -5,9 +5,9 @@ package minequery
 type Cache interface {
 	// Get retrieves value by cache key, either returning the value
 	// itself and true as second return value or nil and false correspondingly.
-	Get(string) (any, bool)
+	Get(string) (interface{}, bool)
 
 	// SetDefault sets value by cache key with default TTL and expiration
 	// configuration parameters.
-	SetDefault(string, any)
+	SetDefault(string, interface{})
 }
