@@ -1,0 +1,32 @@
+name: Build MineQuery
+
+on:
+  push:
+    paths:
+      - "**.go"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version:
+          - { version: '1.13.x' }
+          - { version: 'stable' }
+          - { check-latest: true }
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go SDK
+        uses: actions/setup-go@v4
+        with:
+          version: "${{ matrix.go-version.version }}"
+          check-latest: "${{ matrix.go-version.check-latest }}"
+
+      - name: Install dependencies
+        run: go get .
+
+      - name: Build Go
+        run: go build -v .
