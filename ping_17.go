@@ -1745,6 +1745,14 @@ func Ping17(host string, port int) (*Status17, error) {
 
 // Ping17 pings 1.7+ Minecraft servers.
 func (p *Pinger) Ping17(host string, port int) (*Status17, error) {
+	status, err := p.pingGeneric(p.ping17, host, port)
+	if err != nil {
+		return nil, err
+	}
+	return status.(*Status17), nil
+}
+
+func (p *Pinger) ping17(host string, port int) (interface{}, error) {
 	conn, err := p.openTCPConn(host, port)
 	if err != nil {
 		return nil, err
