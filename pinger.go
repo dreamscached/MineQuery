@@ -66,12 +66,23 @@ func WithProtocolVersion17(version int32) PingerOption {
 	}
 }
 
-// WithQueryCacheExpiry sets Pinger Cache expiry and purge duration values.
+// WithQueryCacheExpiry sets Pinger cache expiry and purge duration values.
+// This function uses go-cache library; consider using WithQueryCache for
+// custom implementations that implement Cache interface.
 //
 //goland:noinspection GoUnusedExportedFunction
 func WithQueryCacheExpiry(expire, purge time.Duration) PingerOption {
 	return func(p *Pinger) {
 		p.SessionCache = cache.New(expire, purge)
+	}
+}
+
+// WithQueryCache sets Pinger cache instance that will be used for server query.
+//
+//goland:noinspection GoUnusedExportedFunction
+func WithQueryCache(cache Cache) PingerOption {
+	return func(p *Pinger) {
+		p.SessionCache = cache
 	}
 }
 
@@ -124,7 +135,7 @@ type Pinger struct {
 	Timeout time.Duration
 
 	// SessionCache holds query protocol sessions in order to reuse them instead of creating new each time.
-	SessionCache *cache.Cache
+	SessionCache Cache
 
 	// UseStrict is a configuration value that defines if tolerable errors (in server ping/query responses)
 	// that are by default silently ignored should be actually returned as errors.

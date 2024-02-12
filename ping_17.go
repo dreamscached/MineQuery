@@ -1726,7 +1726,7 @@ type Status17 struct {
 // String returns a user-friendly representation of a server status response.
 // It contains Minecraft Server version, protocol version number, online count and naturalized MOTD.
 func (s *Status17) String() string {
-	return fmt.Sprintf("Minecraft Server (1.7+, %s, protocol version %d), %d/%d players online, description:\n%s",
+	return fmt.Sprintf("Minecraft Server (1.7+, %s, protocol version %d), %d/%d players online, description: %s",
 		s.VersionName, s.ProtocolVersion, s.OnlinePlayers, s.MaxPlayers, naturalizeMOTD(s.Description.String()))
 }
 
