@@ -37,13 +37,13 @@ MineQuery supports pinging of all versions of Minecraft.
 |----------------------|-----------------|-------------|-------------|
 | ✅ Supported          | ✅ Supported     | ✅ Supported | ✅ Supported |
 
-### Query Protocol Support
+### 📡 Query Protocol Support
 
 MineQuery v2.1.0+ fully supports [Query][9] protocol.
 
-### SRV Record Support
+### 🏷 SRV Record Support
 
-MineQuery v2.6.0+ fully supports SRV records.
+MineQuery v2.5.0+ fully supports SRV records.
 
 ## 📚 How to use
 
