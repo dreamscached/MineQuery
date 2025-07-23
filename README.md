@@ -19,6 +19,14 @@
     </a>
 </p>
 
+> [!WARNING]
+> **MineQuery is no longer maintained.** <br>
+> It used to be my small personal project for my own personal needs that I decided to share with
+> the rest of the world, and honestly, it might be not exactly be a great tool to work with for developing something 
+> serious. I'm not planning on getting back to it at the moment, and if I do, it is likely going to be a complete 
+> rebuilt-from-scratch overhaul. Thank you for using MineQuery in the meantime. <br>
+> &mdash; dreamscached
+
 # 🚀 Migrating from v2 or v1
 
 If you're new to MineQuery, you can skip this part. If you have used it before, you
